@@ -6,6 +6,10 @@ from image_checker import ImageChecker
 
 from PIL import Image
 
+from contract.download_images import download_images as contract_download_images
+from contract.listen_images import listen_images as contract_listen_images
+
+
 app = Flask(__name__)
 image_checker = ImageChecker()
 
@@ -46,6 +50,20 @@ def image_score():
     # encode response using jsonpickle
     response = jsonify(response)
     return response
+
+
+@app.route('/download_images', methods=['GET'])
+def download_images():
+    contract_download_images()
+
+    return jsonify({'is_succeed': True})
+
+
+@app.route('/listen_images', methods=['GET'])
+def listen_images():
+    contract_listen_images()
+
+    return jsonify({'is_succeed': True})
 
 
 if __name__ == '__main__':
