@@ -1,21 +1,53 @@
-from web3 import Web3
-import json
 import asyncio
 import os
+from functools import wraps, partial
 
 from . import config
-from . import download_images
+from . import download_image_data as did
+from . import get_contract as gc
+
+
+metadata = {
+    'found_images': 0,
+    'downloaded_images': 0,
+}
+
+
+def async_wrap(func):
+    @wraps(func)
+    async def run(*args, loop=None, executor=None, **kwargs):
+        if loop is None:
+            loop = asyncio.get_event_loop()
+        pfunc = partial(func, *args, **kwargs)
+        return await loop.run_in_executor(executor, pfunc)
+    return run
 
 
 async def handle_event(contract, event):
-    print(f'New event: {event["args"]["_id"]}')
-    await download_images.download_image_data(contract, event['args']['_id'])
+    image_id = event["args"]["_id"]
+
+    print(f'New event: {image_id}')
+
+    metadata['found_images'] += 1
+
+    download_error = await did.download_image_data(contract, image_id)
+
+    if not download_error:
+        metadata['downloaded_images'] += 1
 
 
 async def iterate_events(contract, event_filter, poll_interval):
     while True:
         for event in event_filter.get_new_entries():
             await handle_event(contract, event)
+
+            max_count_NFTs_watcher = config.config.get_max_count_NFTs_watcher()
+
+            if not max_count_NFTs_watcher:
+                continue
+            if metadata['downloaded_images'] >= max_count_NFTs_watcher:
+                return
+
         await asyncio.sleep(poll_interval)
 
 
@@ -25,16 +57,13 @@ def listen_images():
     if not os.path.exists(config.config.SOURCE_PATH):
         os.mkdir(config.config.SOURCE_PATH)
 
-    w3 = Web3(Web3.HTTPProvider(config.config.get_web3_provider()))
-    with open(config.config.CONTRACT_ABI_FILENAME) as json_file:
-        abi = json.load(json_file)
-    contract = w3.eth.contract(address=config.config.CONTRACT_ADDRESS, abi=abi)
-
+    contract = gc.get_contract()
     contract_filter = contract.events.URI().createFilter(fromBlock='latest')
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
     try:
+        print('Images listener started!')
         task = asyncio.gather(iterate_events(contract, contract_filter, 2))
         loop.run_until_complete(task)
     finally:
