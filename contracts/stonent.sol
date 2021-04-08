@@ -157,8 +157,8 @@ contract Stonent is ChainlinkClient, Ownable {
     address private dev;
     address public paymentToken;
 
-    mapping (bytes32 => Certificate) certificates public;
-    mapping (string => bytes32) lastCertification public;
+    mapping (bytes32 => Certificate) public certificates;
+    mapping (string => bytes32) public lastCertification;
 
     struct Certificate {
         uint256 Score;
