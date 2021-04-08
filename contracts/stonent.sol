@@ -157,8 +157,8 @@ contract Stonent is ChainlinkClient, Ownable {
     address private dev;
     address public paymentToken;
 
-    mapping (bytes32 => Certificate) certificates ;
-    mapping (string => bytes32) lastCertification;
+    mapping (bytes32 => Certificate) certificates public;
+    mapping (string => bytes32) lastCertification public;
 
     struct Certificate {
         uint256 Score;
@@ -180,14 +180,14 @@ contract Stonent is ChainlinkClient, Ownable {
         jobId = "55ab785f7b424544afc45390690649c8";
         fee = 1 * 10 ** 18;
         dev = msg.sender;
-        price = 0.5 * 10 ** 18; // price for certification in paymentToken
+        price = 100 * 10 ** 18; // price for certification in paymentToken
 
     }
 
     /**
      * Initial request
      */
-    function requestEthereumPrice(string memory _id) public {
+    function check(string memory _id) public {
 
         IERC20(paymentToken).transferFrom(msg.sender, dev, price);
 
