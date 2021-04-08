@@ -95,11 +95,11 @@ def check():
 
     contract = get_contract()
 
-
+    nftID = int(image_id)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    task = asyncio.gather(download_image_data(contract, int(image_id)))
+    task = asyncio.gather(download_image_data(contract, nftID ))
     loop.run_until_complete(task)
 
     task_result = task.result()
@@ -107,7 +107,7 @@ def check():
     if task_result == download_images_data_errors['not_found_by_contract']:
         return {'score': 404}
 
-    if image_id % 2 == 0:
+    if nftID % 2 == 0:
         return jsonify({'score': random.randint(80, 100)})
     else:
         return jsonify({'score': random.randint(0, 40)})
