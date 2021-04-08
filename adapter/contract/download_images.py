@@ -80,6 +80,7 @@ def download_images():
     except:
         pass
 
+    metadata['found_images'] = 0
     end = time.time()
 
     print('Downloaded images successfully', end - start)

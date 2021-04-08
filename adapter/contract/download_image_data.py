@@ -27,7 +27,7 @@ async def download_image_data(contract, image_id):
     if not parsed_data_ipfs_url.path or parsed_data_ipfs_url.path == '/':
         return errors['not_found_by_contract']
 
-    metadata['last_urls'].insert(0, parsed_data_ipfs_url)
+    metadata['last_urls'].insert(0, data_ipfs_url)
     metadata['last_urls'] = metadata['last_urls'][0:config.config.LAST_URLS_COUNT]
 
     try:
@@ -70,7 +70,6 @@ async def download_image_data(contract, image_id):
     try:
         async with aiofile.async_open(f'{config.config.SOURCE_PATH}/{image_id}', 'wb', encoding='utf-8') as file:
             await file.write(image_source)
-            file.close()
     except Exception as e:
         print(e)
         return errors['failed_metadata_saving']
@@ -80,7 +79,6 @@ async def download_image_data(contract, image_id):
     try:
         async with aiofile.async_open(f'{config.config.DATA_PATH}/{image_id}', 'w', encoding='utf-8') as file:
             await file.write(json.dumps(data))
-            file.close()
     except Exception as e:
         print(e)
         return errors['failed_image_source_saving']

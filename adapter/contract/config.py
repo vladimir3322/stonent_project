@@ -11,7 +11,7 @@ class Config:
     # FIRST_BLOCK_NUMBER = 10147631
     FIRST_BLOCK_NUMBER = 12190175
     SAFE_BLOCK_STEP = 142
-    LAST_URLS_COUNT = 10,
+    LAST_URLS_COUNT = 10
 
     def __init__(self):
         pass
@@ -22,7 +22,7 @@ class Config:
         provider_url = os.getenv('WEB_3_PROVIDER_URL')
         provider_key = os.getenv('WEB_3_PROVIDER_KEY')
 
-        return f'{provider_url}{provider_key}'
+        return f'{provider_url}/{provider_key}'
 
     def get_ipfs_url(self):
         dotenv_path = join('.env')

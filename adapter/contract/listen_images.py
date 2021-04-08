@@ -67,4 +67,5 @@ def listen_images():
         task = asyncio.gather(iterate_events(contract, contract_filter, 2))
         loop.run_until_complete(task)
     finally:
+        metadata['found_images'] = 0
         loop.close()
