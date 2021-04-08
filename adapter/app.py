@@ -106,12 +106,12 @@ def check():
     task_result = task.result()
 
     if task_result == download_images_data_errors['not_found_by_contract']:
-        return {'code': 404}
+        return {'score': 404}
 
     if image_id % 2 == 0:
-        return jsonify({'code': random.randint(80, 100)})
+        return jsonify({'score': random.randint(80, 100)})
     else:
-        return jsonify({'code': random.randint(0, 40)})
+        return jsonify({'score': random.randint(0, 40)})
 
 
 @app.route('/download_images', methods=['GET'])
