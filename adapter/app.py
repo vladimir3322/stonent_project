@@ -93,9 +93,6 @@ def check():
 
     image_id = data['id']
 
-    if not isinstance(image_id, int):
-        return jsonify({'is_succeed': False})
-
     contract = get_contract()
 
     loop = asyncio.new_event_loop()
