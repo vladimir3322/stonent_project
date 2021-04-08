@@ -23,7 +23,7 @@ RUN apt-get update \
 
 RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
-RUN pipenv install --system --deploy --ignore-pipfile
+RUN pipenv install --system --deploy
 RUN pip3 install opencv-python imagehash
 ENTRYPOINT [ "python" ]
 CMD [ "app.py" ]
