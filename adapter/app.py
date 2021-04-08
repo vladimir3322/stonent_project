@@ -1,4 +1,4 @@
-import cv2
+# import cv2
 import numpy as np
 import json
 import asyncio
@@ -30,36 +30,37 @@ def log_request_info():
     app.logger.debug('Body: %s', request.get_data())
 
 
-def load_image(data):
-    nparr = np.fromstring(data, np.uint8)
-    # decode image
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    img = Image.fromarray(img)
-    return img
+# def load_image(data):
+#     nparr = np.fromstring(data, np.uint8)
+#     # decode image
+#     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+#     img = Image.fromarray(img)
+#     return img
+#
+#
+# @app.route('/register_image', methods=['POST'])
+# def register_image():
+#     img = load_image(request.data)
+#     image_checker.register_new_image(img, 'None')
+#
+#     # build a response dict to send back to client
+#     response = {'message': 'image received.'}
+#     # encode response using jsonpickle
+#     response = jsonify(response)
+#     return response
+#
+#
+# @app.route('/image_score', methods=['POST'])
+# def image_score():
+#     img = load_image(request.data)
+#     score = image_checker.get_image_score(img)
+#
+#     # build a response dict to send back to client
+#     response = {'score': str(score)}
+#     # encode response using jsonpickle
+#     response = jsonify(response)
+#     return response
 
-
-@app.route('/register_image', methods=['POST'])
-def register_image():
-    img = load_image(request.data)
-    image_checker.register_new_image(img, 'None')
-
-    # build a response dict to send back to client
-    response = {'message': 'image received.'}
-    # encode response using jsonpickle
-    response = jsonify(response)
-    return response
-
-
-@app.route('/image_score', methods=['POST'])
-def image_score():
-    img = load_image(request.data)
-    score = image_checker.get_image_score(img)
-
-    # build a response dict to send back to client
-    response = {'score': str(score)}
-    # encode response using jsonpickle
-    response = jsonify(response)
-    return response
 
 @app.route('/info', methods=['GET'])
 def info():
@@ -79,10 +80,18 @@ def info():
 def check():
     body = json.loads(request.data)
 
-    if 'id' not in body:
+    if 'data' not in body:
         return jsonify({'is_succeed': False})
 
-    image_id = body['id']
+    data = body['data']
+
+    if not isinstance(data, dict):
+        return jsonify({'is_succeed': False})
+
+    if 'id' not in data:
+        return jsonify({'is_succeed': False})
+
+    image_id = data['id']
 
     if not isinstance(image_id, int):
         return jsonify({'is_succeed': False})
@@ -97,12 +106,12 @@ def check():
     task_result = task.result()
 
     if task_result == download_images_data_errors['not_found_by_contract']:
-        return {'code': 404}
+        return {'score': 404}
 
     if image_id % 2 == 0:
-        return jsonify({'code': random.randint(80, 100)})
+        return jsonify({'score': random.randint(80, 100)})
     else:
-        return jsonify({'code': random.randint(0, 40)})
+        return jsonify({'score': random.randint(0, 40)})
 
 
 @app.route('/download_images', methods=['GET'])
