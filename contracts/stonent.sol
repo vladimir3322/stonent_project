@@ -156,10 +156,10 @@ contract Stonent is ChainlinkClient, Ownable {
     uint256 public price;
     address private dev;
     address public paymentToken;
-    
+
     mapping (bytes32 => Certificate) certificates ;
     mapping (string => bytes32) lastCertification;
-    
+
     struct Certificate {
         uint256 Score;
         address Oracle;
@@ -167,82 +167,82 @@ contract Stonent is ChainlinkClient, Ownable {
         uint256 Date;
         string ID;
     }
-    
+
     event RequestSended(address indexed add,string indexed id, address token, bytes32 reqID);
     event RequestCertified(uint256 indexed score, bytes32 reqID);
-    
+
     uint256 public result;
-    
-   
+
+
     constructor() public {
         setPublicChainlinkToken();
-        oracle = 0xAA1DC356dc4B18f30C347798FD5379F3D77ABC5b;
-        jobId = "235f8b1eeb364efc83c26d0bef2d0c01";
+        oracle = 0xc00AF972A21f783931A4d558C0996Ae66CE7E505;
+        jobId = "55ab785f7b424544afc45390690649c8";
         fee = 1 * 10 ** 18;
         dev = msg.sender;
-        price = 100 * 10 ** 18; // price for certification in paymentToken
-        
+        price = 0.5 * 10 ** 18; // price for certification in paymentToken
+
     }
-    
+
     /**
      * Initial request
      */
     function requestEthereumPrice(string memory _id) public {
-        
+
         IERC20(paymentToken).transferFrom(msg.sender, dev, price);
-        
+
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillScore.selector);
         req.add("id", _id);
         bytes32 requestID = sendChainlinkRequestTo(oracle, req, fee);
-        
+
         Certificate storage certificate = certificates[requestID];
-        
+
         certificate.ID = _id;
         certificate.Version = version;
         certificate.Oracle = oracle;
-        
+
         lastCertification[_id] = requestID;
-    
-        
+
+
         emit RequestSended(msg.sender, _id, address(0x0), requestID);
     }
-    
+
     /**
      * Callback function
      */
     function fulfillScore(bytes32 _requestId, uint256 _score) public recordChainlinkFulfillment(_requestId) {
         Certificate storage certificate = certificates[_requestId];
-        
+
         certificate.Score = _score;
         certificate.Date = now;
-        
+
          emit RequestCertified(_score, _requestId);
     }
-    
+
     function changeOracle(address _oracle) onlyOwner public {
         oracle = _oracle;
     }
-    
+
     function changeJobID(bytes32 _job) onlyOwner public {
         jobId = _job;
     }
-    
+
     function changeOracleFee(uint256 _fee) onlyOwner public {
         fee = _fee;
     }
-    
+
     function changePrice(uint256 _price) onlyOwner public {
         price = _price;
     }
-    
+
     function changeDev(address _newDev) onlyOwner public {
         dev = _newDev;
     }
-    
+
     function changeAdapterVersion(uint256 _v) onlyOwner public {
         version = _v;
     }
-    
+
     function setPaymentToken(address _token) onlyOwner public {
         paymentToken = _token;
     }
