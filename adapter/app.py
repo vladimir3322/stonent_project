@@ -95,9 +95,11 @@ def check():
 
     contract = get_contract()
 
+
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    task = asyncio.gather(download_image_data(contract, image_id))
+    task = asyncio.gather(download_image_data(contract, int(image_id)))
     loop.run_until_complete(task)
 
     task_result = task.result()
