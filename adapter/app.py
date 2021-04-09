@@ -76,7 +76,7 @@ def info():
     })
 
 
-@app.route('/check', methods=['POST'])
+@app.route('/checkRaw', methods=['POST'])
 def check():
     body = json.loads(request.data)
 
@@ -125,6 +125,14 @@ def listen_images():
     contract_listen_images()
 
     return jsonify({'is_succeed': True})
+
+@app.route('/check', methods=['GET'])
+def call_adapter():
+    data = request.get_json()
+    if data == '':
+        data = {}
+    adapter = Adapter(data)
+    return jsonify(adapter.result)
 
 
 if __name__ == '__main__':
