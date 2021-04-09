@@ -3,6 +3,8 @@ import numpy as np
 import json
 import asyncio
 import random
+from adapter import Adapter
+
 
 from flask import Flask, request, jsonify
 from image_checker import ImageChecker
@@ -126,7 +128,7 @@ def listen_images():
 
     return jsonify({'is_succeed': True})
 
-@app.route('/check', methods=['GET'])
+@app.route('/check', methods=['POST'])
 def call_adapter():
     data = request.get_json()
     if data == '':
