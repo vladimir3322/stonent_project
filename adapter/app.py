@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from flask import Flask, request, jsonify
-from image_checker import ImageChecker
+from nn_image_checker import NNModelChecker
 
 from PIL import Image
 
@@ -11,7 +11,7 @@ from contract.listen_images import listen_images as contract_listen_images
 
 
 app = Flask(__name__)
-image_checker = ImageChecker()
+image_checker = NNModelChecker()
 
 
 @app.before_request
@@ -31,7 +31,7 @@ def load_image(data):
 @app.route('/register_image', methods=['POST'])
 def register_image():
     img = load_image(request.data)
-    image_checker.register_new_image(img, 'None')
+    image_checker.add_image_to_storage(img, 'None')
 
     # build a response dict to send back to client
     response = {'message': 'image received.'}
@@ -43,10 +43,10 @@ def register_image():
 @app.route('/image_score', methods=['POST'])
 def image_score():
     img = load_image(request.data)
-    score = image_checker.get_image_score(img)
+    scores, descriptions = image_checker.find_most_simular_images(img)
 
     # build a response dict to send back to client
-    response = {'score': str(score)}
+    response = {'scores': str(scores), 'descriptions': str(descriptions)}
     # encode response using jsonpickle
     response = jsonify(response)
     return response
