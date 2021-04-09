@@ -59,6 +59,7 @@ class Adapter:
             #response = self.bridge.request(self.base_url, params)
 
             nftID = int(self.id_params)
+            contract = get_contract()
 
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
@@ -77,7 +78,7 @@ class Adapter:
 
             #data = response.json()
             #self.result = data[self.to_param]
-            data= jsonify({'score': rrndmScore})
+            data= jsonify({'score': rndmScore})
             self.result_success(data)
         except Exception as e:
             self.result_error(e)
