@@ -28,6 +28,7 @@ class Adapter:
 
     def __init__(self, input):
         self.id = input.get('id', '1')
+        self.result = ""   #kostil
         self.request_data = input.get('data')
         if self.validate_request_data():
             self.bridge = Bridge()
@@ -78,7 +79,7 @@ class Adapter:
 
             #data = response.json()
             #self.result = data[self.to_param]
-            data= jsonify({'score': rndmScore})
+            data= {'score': rndmScore}
             self.result_success(data)
         except Exception as e:
             self.result_error(e)

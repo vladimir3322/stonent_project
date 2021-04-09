@@ -130,9 +130,10 @@ def listen_images():
 
 @app.route('/check', methods=['POST'])
 def call_adapter():
-    data = request.get_json()
-    print(data)
-    adapter = Adapter(data)
+    body = json.loads(request.data)
+    #data = request.get_json()
+    print(body)
+    adapter = Adapter(body)
     return jsonify(adapter.result)
 
 
