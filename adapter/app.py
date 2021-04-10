@@ -100,8 +100,7 @@ def listen_images():
 @app.route('/check', methods=['POST'])
 def call_adapter():
     body = json.loads(request.data)
-    print(body)
-    adapter = Adapter(body)
+    adapter = Adapter(body, image_checker, image_manager)
     return jsonify(adapter.result)
 
 

@@ -59,7 +59,7 @@ class NNModelChecker:
         indexes, scores = self._index.knnQuery(features, k=num)
         nearest_descriptions = [self._feature_dict[index] for index in indexes]
         scores = self._transform_scores(scores)
-        return nearest_descriptions, scores
+        return scores, nearest_descriptions
 
 
 

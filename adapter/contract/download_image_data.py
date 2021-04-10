@@ -20,7 +20,7 @@ errors = {
 }
 
 
-async def download_image_data(contract, image_id):
+async def download_image_data(contract, image_id, save_to_disk=True):
     data_ipfs_url = contract.functions.uri(image_id).call()
     parsed_data_ipfs_url = urlparse(data_ipfs_url)
 
@@ -67,20 +67,24 @@ async def download_image_data(contract, image_id):
     if not config.config.get_save_images():
         return True
 
-    try:
-        async with aiofile.async_open(f'{config.config.SOURCE_PATH}/{image_id}', 'wb', encoding='utf-8') as file:
-            await file.write(image_source)
-    except Exception as e:
-        print(e)
-        return errors['failed_metadata_saving']
-
     data['image_source_path'] = image_source_path
 
-    try:
-        async with aiofile.async_open(f'{config.config.DATA_PATH}/{image_id}', 'w', encoding='utf-8') as file:
-            await file.write(json.dumps(data))
-    except Exception as e:
-        print(e)
-        return errors['failed_image_source_saving']
+    if save_to_disk:
+        try:
+            async with aiofile.async_open(f'{config.config.SOURCE_PATH}/{image_id}', 'wb', encoding='utf-8') as file:
+                await file.write(image_source)
+        except Exception as e:
+            print(e)
+            return errors['failed_metadata_saving']
 
-    return None
+        try:
+            async with aiofile.async_open(f'{config.config.DATA_PATH}/{image_id}', 'w', encoding='utf-8') as file:
+                await file.write(json.dumps(data))
+        except Exception as e:
+            print(e)
+            return errors['failed_image_source_saving']
+
+        return None
+    else:
+        return image_source, json.dumps(data)
+

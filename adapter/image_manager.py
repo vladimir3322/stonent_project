@@ -19,8 +19,7 @@ class ImageManager:
         description_path = os.path.join(self.descriptions_path, id)
         try:
             pil_image = Image.open(image_path)
-            f = open(description_path, 'r')
-            decription = f.read()
+            decription = str(id)
 
             self.image_cheker.add_image_to_storage(pil_image, decription)
         except Exception as e:
@@ -33,6 +32,9 @@ class ImageManager:
             self._registred_ids.add(id)
 
     def register_new_images(self):
+        if not os.path.exists(self.descriptions_path) or not os.path.exists(self.images_path):
+            return
+
         descriptions_ids = os.listdir(self.descriptions_path)
         images_ids = os.listdir(self.images_path)
         for image_id in images_ids:
