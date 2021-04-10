@@ -82,6 +82,8 @@ class Adapter:
             else:
                 score = scores[0]
 
+            score = int(score * 100)
+
 
             #data = response.json()
             #self.result = data[self.to_param]

@@ -38,7 +38,7 @@ class NNModelChecker:
             return self.feature_extructor(input_image[None, :])[0].reshape(-1)
 
     def _transform_scores(self, scores):
-        mean = 0.0035
+        mean = 0.0037
         temp = 10000
         return logistic.cdf((scores - mean) * temp)
 
