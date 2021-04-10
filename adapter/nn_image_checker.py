@@ -32,6 +32,8 @@ class NNModelChecker:
             if image.ndim == 2:
                 image = image[..., None]
                 image = np.concatenate([image, image, image], -1)
+            if image.shape[-1] == 4:
+                image = image[..., :3]
             input_image = self.preprocess(Image.fromarray(image))
             return self.feature_extructor(input_image[None, :])[0].reshape(-1)
 
