@@ -32,11 +32,13 @@ class NNModelChecker:
             if image.ndim == 2:
                 image = image[..., None]
                 image = np.concatenate([image, image, image], -1)
+            if image.shape[-1] == 4:
+                image = image[..., :3]
             input_image = self.preprocess(Image.fromarray(image))
             return self.feature_extructor(input_image[None, :])[0].reshape(-1)
 
     def _transform_scores(self, scores):
-        mean = 0.0035
+        mean = 0.0037
         temp = 10000
         return logistic.cdf((scores - mean) * temp)
 
@@ -59,7 +61,7 @@ class NNModelChecker:
         indexes, scores = self._index.knnQuery(features, k=num)
         nearest_descriptions = [self._feature_dict[index] for index in indexes]
         scores = self._transform_scores(scores)
-        return nearest_descriptions, scores
+        return scores, nearest_descriptions
 
 
 

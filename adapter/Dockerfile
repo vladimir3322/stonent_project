@@ -23,12 +23,13 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 RUN pip3 install opencv-python imagehash torch torchvision
 RUN pip3 install nmslib
+RUN pip3 install opencv-python imagehash
 
 COPY . /app
 WORKDIR /app
 RUN pipenv install --system --deploy --ignore-pipfile
 RUN pip3 install py_dotenv
 RUN pip3 install -r requirements.txt
-RUN pip3 install opencv-python imagehash
+
 ENTRYPOINT [ "python" ]
 CMD [ "app.py" ]
