@@ -1,6 +1,7 @@
 import argparse
 import json
 
+from skimage import io
 import cv2
 import requests
 
@@ -9,7 +10,7 @@ parser.add_argument("image_path")
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    img = cv2.imread(args.image_path)
+    img = io.imread(args.image_path)
     # encode image as jpeg
     _, img_encoded = cv2.imencode('.jpg', img)
     # send http request with image and receive response

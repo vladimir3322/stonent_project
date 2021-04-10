@@ -1,4 +1,4 @@
-# import cv2
+import cv2
 import numpy as np
 import json
 import asyncio
@@ -21,9 +21,11 @@ from contract.download_image_data import download_image_data
 from contract.download_image_data import metadata as download_images_data_metadata
 from contract.download_image_data import errors as download_images_data_errors
 
+from image_manager import ImageManager
 
 app = Flask(__name__)
 image_checker = NNModelChecker()
+image_manager = ImageManager(image_checker)
 
 
 @app.before_request
@@ -43,6 +45,8 @@ def load_image(data):
 
 @app.route('/register_image', methods=['POST'])
 def register_image():
+    image_manager.register_new_images()
+
     img = load_image(request.data)
     image_checker.add_image_to_storage(img, 'None')
 
@@ -55,6 +59,8 @@ def register_image():
 
 @app.route('/image_score', methods=['POST'])
 def image_score():
+    image_manager.register_new_images()
+
     img = load_image(request.data)
     scores, descriptions = image_checker.find_most_simular_images(img)
 
@@ -82,20 +88,18 @@ def info():
 @app.route('/download_images', methods=['GET'])
 def download_images():
     contract_download_images()
-
     return jsonify({'is_succeed': True})
 
 
 @app.route('/listen_images', methods=['GET'])
 def listen_images():
     contract_listen_images()
-
     return jsonify({'is_succeed': True})
+
 
 @app.route('/check', methods=['POST'])
 def call_adapter():
     body = json.loads(request.data)
-    #data = request.get_json()
     print(body)
     adapter = Adapter(body)
     return jsonify(adapter.result)

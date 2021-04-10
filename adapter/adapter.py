@@ -6,7 +6,6 @@ import asyncio
 import random
 
 from flask import Flask, request, jsonify
-from image_checker import ImageChecker
 
 from PIL import Image
 
