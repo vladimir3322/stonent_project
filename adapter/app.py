@@ -7,7 +7,7 @@ from adapter import Adapter
 
 
 from flask import Flask, request, jsonify
-from image_checker import ImageChecker
+from nn_image_checker import NNModelChecker
 
 from PIL import Image
 
@@ -23,7 +23,7 @@ from contract.download_image_data import errors as download_images_data_errors
 
 
 app = Flask(__name__)
-image_checker = ImageChecker()
+image_checker = NNModelChecker()
 
 
 @app.before_request
@@ -32,36 +32,37 @@ def log_request_info():
     app.logger.debug('Body: %s', request.get_data())
 
 
-# def load_image(data):
-#     nparr = np.fromstring(data, np.uint8)
-#     # decode image
-#     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-#     img = Image.fromarray(img)
-#     return img
-#
-#
-# @app.route('/register_image', methods=['POST'])
-# def register_image():
-#     img = load_image(request.data)
-#     image_checker.register_new_image(img, 'None')
-#
-#     # build a response dict to send back to client
-#     response = {'message': 'image received.'}
-#     # encode response using jsonpickle
-#     response = jsonify(response)
-#     return response
-#
-#
-# @app.route('/image_score', methods=['POST'])
-# def image_score():
-#     img = load_image(request.data)
-#     score = image_checker.get_image_score(img)
-#
-#     # build a response dict to send back to client
-#     response = {'score': str(score)}
-#     # encode response using jsonpickle
-#     response = jsonify(response)
-#     return response
+
+def load_image(data):
+    nparr = np.fromstring(data, np.uint8)
+    # decode image
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    img = Image.fromarray(img)
+    return img
+
+
+@app.route('/register_image', methods=['POST'])
+def register_image():
+    img = load_image(request.data)
+    image_checker.add_image_to_storage(img, 'None')
+
+    # build a response dict to send back to client
+    response = {'message': 'image received.'}
+    # encode response using jsonpickle
+    response = jsonify(response)
+    return response
+
+
+@app.route('/image_score', methods=['POST'])
+def image_score():
+    img = load_image(request.data)
+    scores, descriptions = image_checker.find_most_simular_images(img)
+
+    # build a response dict to send back to client
+    response = {'scores': str(scores), 'descriptions': str(descriptions)}
+    # encode response using jsonpickle
+    response = jsonify(response)
+    return response
 
 
 @app.route('/info', methods=['GET'])
@@ -76,43 +77,6 @@ def info():
         'watched_images_count': listen_images_metadata['downloaded_images'],
         'last_downloaded_urls': download_images_data_metadata['last_urls'],
     })
-
-
-@app.route('/checkRaw', methods=['POST'])
-def check():
-    body = json.loads(request.data)
-
-    if 'data' not in body:
-        return jsonify({'is_succeed': False})
-
-    data = body['data']
-
-    if not isinstance(data, dict):
-        return jsonify({'is_succeed': False})
-
-    if 'id' not in data:
-        return jsonify({'is_succeed': False})
-
-    image_id = data['id']
-
-    contract = get_contract()
-
-    nftID = int(image_id)
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    task = asyncio.gather(download_image_data(contract, nftID ))
-    loop.run_until_complete(task)
-
-    task_result = task.result()
-
-    if task_result == download_images_data_errors['not_found_by_contract']:
-        return {'score': 404}
-
-    if nftID % 2 == 0:
-        return jsonify({'score': random.randint(80, 100)})
-    else:
-        return jsonify({'score': random.randint(0, 40)})
 
 
 @app.route('/download_images', methods=['GET'])
