@@ -1,3 +1,12 @@
+# Stonent project
+
+This project has been created to help NFT-painters fight with intellectual property theft.
+We use neural networks to detect plagiarism of paintings.
+This project is hosted by chainlink external adapter.
+Every painting is certificated by oracles.
+Originality score of each painting is kept by the [contract](https://rinkeby.etherscan.io/tx/0x1d3e80be8475b53fcef3a71e65d3a24e14fae47f4dd32e1079cb666585ec358b).
+So, everybody can see a picture and check its originality score!
+
 Our solution for plagiarism detection is inspired by Content-Based Image Retrieval or CBIR.
  CBIR is a task of image searching. There are different ways to solve this problem.
   But all of them are about building descriptions of images. So the problem solving consists of 3 steps.
