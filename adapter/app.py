@@ -3,6 +3,7 @@ import numpy as np
 import json
 import asyncio
 import random
+import os
 from adapter import Adapter
 
 
@@ -94,6 +95,30 @@ def download_images():
 @app.route('/listen_images', methods=['GET'])
 def listen_images():
     contract_listen_images()
+    return jsonify({'is_succeed': True})
+
+
+@app.route('/load_image', methods=['POST'])
+def load_image():
+    body = json.loads(request.data)
+
+    if 'id' not in body:
+        return jsonify({'is_succeed': False})
+
+    image_id = body['id']
+
+    if not os.path.exists(config.DATA_PATH):
+        os.mkdir(config.DATA_PATH)
+    if not os.path.exists(config.SOURCE_PATH):
+        os.mkdir(config.SOURCE_PATH)
+
+    contract = get_contract()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    data_ipfs_url = contract.functions.uri(image_id).call()
+    task = asyncio.gather(download_image_data(data_ipfs_url, image_id))
+    loop.run_until_complete(task)
+
     return jsonify({'is_succeed': True})
 
 
