@@ -3,7 +3,7 @@
 This project has been created to help NFT-artists fight with intellectual property theft.
 We use neural networks to detect plagiarism of NFT ERC1155 tokens directly in blockchain.
 To check the orinality the user can buy certification in our [DAPP](http://stonent.us-east-2.elasticbeanstalk.com/) accessed by Rinkeby test network. Oracle validate nft and put it score to the smart-contract.
-Originality scores of each certified painting сan be seen here - [stonent-contract](https://rinkeby.etherscan.io/tx/0x1d3e80be8475b53fcef3a71e65d3a24e14fae47f4dd32e1079cb666585ec358b).
+Originality scores of each certified painting saved here - [stonent-contract](https://rinkeby.etherscan.io/tx/0x1d3e80be8475b53fcef3a71e65d3a24e14fae47f4dd32e1079cb666585ec358b).
 So, everybody can see an art and check its originality score!
 
 Our solution for plagiarism detection is inspired by Content-Based Image Retrieval or CBIR.
