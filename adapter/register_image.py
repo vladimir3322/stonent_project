@@ -1,3 +1,7 @@
+"""
+Script to register image via http.
+"""
+
 import argparse
 import json
 
