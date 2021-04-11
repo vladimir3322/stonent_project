@@ -11,6 +11,11 @@ from scipy.stats import logistic
 
 class NNModelChecker:
     def __init__(self):
+        """
+        We will use renset50 trained on ImageNet as feature extructor.
+        To get features we remove last classification layer of the nn.
+        To find nearest features we use nmslib index.
+        """
         model = torch.hub.load('pytorch/vision:v0.9.0', 'resnet50', pretrained=True)
         self.feature_extructor = nn.Sequential(*list(model._modules.values())[:-1])
 
@@ -27,6 +32,10 @@ class NNModelChecker:
         self._feature_dict = {}
 
     def _get_features(self, pil_image):
+        """
+        :param pil_image: image loaded py PIL library.
+        :return: array of features for the image
+        """
         with torch.no_grad():
             image = np.array(pil_image)
             if image.ndim == 2:
@@ -38,15 +47,32 @@ class NNModelChecker:
             return self.feature_extructor(input_image[None, :])[0].reshape(-1)
 
     def _transform_scores(self, scores):
+        """
+        :param scores: raw cosine distance scores
+        :return: scores scaled to [0, 1]
+
+        mean was calculated on classical art dataset
+        temp was choose to make sigmiod output close to 0 or 1
+        """
         mean = 0.0037
         temp = 10000
         return logistic.cdf((scores - mean) * temp)
 
     @staticmethod
     def cosine_distance(input1, input2):
+        """
+        :param input1: first feature vector
+        :param input2: second feature vector
+        :return: cosine distance between vectors.
+        """
         return np.dot(input1, input2.T) / np.sqrt(np.dot(input1, input1.T) * np.dot(input2, input2.T))
 
-    def add_image_to_storage(self, pil_image, descr, ):
+    def add_image_to_storage(self, pil_image, descr):
+        """
+        :param pil_image: image loaded py PIL library.
+        :param descr: decription of the image. Will be returned if image will be chosen as neighbour
+        :return: None
+        """
         features = self._get_features(pil_image)
         index = len(self._feature_dict)
         self._feature_dict[index] = descr
@@ -54,6 +80,13 @@ class NNModelChecker:
         self._index_need_to_be_build = True
 
     def find_most_simular_images(self, pil_image, num=5):
+        """
+        :param pil_image:  image loaded py PIL library.
+        :param num: number of neighbours to return
+        :return: scores, nearest_descriptions.
+                 scores - Scores of simularity between pil_image and neighbours
+                 nearest_descriptions — decriptions of neighbours
+        """
         if self._index_need_to_be_build:
             self._index.createIndex({'post': 2})
             self._index_need_to_be_build = False

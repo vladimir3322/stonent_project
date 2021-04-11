@@ -10,11 +10,20 @@ class ImageManager:
     images_path = config.Config.SOURCE_PATH
 
     def __init__(self, image_cheker, delete_registered=True):
+        """
+        :param image_cheker: image checker class to register new images
+        :param delete_registered: flag to delete images after registration
+        This class scan download directory and register all new images in image_cheker.
+        """
         self.image_cheker = image_cheker
         self._registred_ids = set()
         self.delete_registered = delete_registered
 
     def _register_new_image(self, id):
+        """
+        :param id: image id. id is name of the files
+        :return: None
+        """
         image_path = os.path.join(self.images_path, id)
         description_path = os.path.join(self.descriptions_path, id)
         try:
@@ -32,6 +41,10 @@ class ImageManager:
             self._registred_ids.add(id)
 
     def register_new_images(self):
+        """
+        :return: None
+        This function will scan downloads folder and register all new images in it.
+        """
         if not os.path.exists(self.descriptions_path) or not os.path.exists(self.images_path):
             return
 
