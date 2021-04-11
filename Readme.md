@@ -14,4 +14,4 @@ For better interpretation we scale the distance to [0, 1] where 0 means that the
  
 Here are examples of our system output.
 
-![Alt text](images/output_examples.png?raw=true "Title")!
+![Alt text](images/output_examples.png?raw=true "Title")
