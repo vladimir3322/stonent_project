@@ -1,0 +1,95 @@
+@mixin applyResponsive320() {
+    @media screen and (min-width: 320px) {
+        @content;
+    }
+}
+@mixin applyResponsive375() {
+    @media screen and (min-width: 375px) {
+        @content;
+    }
+}
+@mixin applyResponsive414() {
+    @media screen and (min-width: 414px) {
+        @content;
+    }
+}
+@mixin applyResponsive768() {
+    @media screen and (min-width: 768px) {
+        @content;
+    }
+}
+@mixin applyResponsive810() {
+    @media screen and (min-width: 810px) {
+        @content;
+    }
+}
+@mixin applyResponsive834() {
+    @media screen and (min-width: 834px) {
+        @content;
+    }
+}
+@mixin applyResponsive1024() {
+    @media screen and (min-width: 1024px) {
+        @content;
+    }
+}
+@mixin applyResponsive1080() {
+    @media screen and (min-width: 1080px) {
+        @content;
+    }
+}
+@mixin applyResponsive1112() {
+    @media screen and (min-width: 1112px) {
+        @content;
+    }
+}
+@mixin applyResponsive1152() {
+    @media screen and (min-width: 1152px) {
+        @content;
+    }
+}
+@mixin applyResponsive1194() {
+    @media screen and (min-width: 1194px) {
+        @content;
+    }
+}
+@mixin applyResponsive1280() {
+    @media screen and (min-width: 1280px) {
+        @content;
+    }
+}
+@mixin applyResponsive1366() {
+    @media screen and (min-width: 1366px) {
+        @content;
+    }
+}
+@mixin applyResponsive1440() {
+    @media screen and (min-width: 1440px) {
+        @content;
+    }
+}
+@mixin applyResponsive1536() {
+    @media screen and (min-width: 1536px) {
+        @content;
+    }
+}
+@mixin applyResponsive1680() {
+    @media screen and (min-width: 1680px) {
+        @content;
+    }
+}
+@mixin applyResponsive1920() {
+    @media screen and (min-width: 1920px) {
+        @content;
+    }
+}
+@mixin applyResponsive2048() {
+    @media screen and (min-width: 2048px) {
+        @content;
+    }
+}
+@mixin applyResponsive2560() {
+    @media screen and (min-width: 2560px) {
+        @content;
+    }
+}

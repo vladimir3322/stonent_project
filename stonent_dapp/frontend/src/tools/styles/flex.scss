@@ -1,0 +1,52 @@
+@mixin dFlex {
+    display: -ms-flexbox !important;
+    display: flex !important;
+}
+@mixin flexRow {
+    -ms-flex-direction: row !important;
+    flex-direction: row !important;
+}
+@mixin flexRowReverse() {
+    -ms-flex-direction: row-reverse !important;
+    flex-direction: row-reverse !important;
+}
+@mixin flexColumn {
+    -ms-flex-direction: column !important;
+    flex-direction: column !important;
+}
+@mixin flexColumnReverse() {
+    -ms-flex-direction: column-reverse !important;
+    flex-direction: column-reverse !important;
+}
+@mixin justifyContentStart {
+    -ms-flex-pack: start !important;
+    justify-content: flex-start !important;
+}
+@mixin justifyContentEnd {
+    -ms-flex-pack: end !important;
+    justify-content: flex-end !important;
+}
+@mixin justifyContentCenter {
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+}
+@mixin justifyContentBetween {
+    -ms-flex-pack: justify !important;
+    justify-content: space-between !important;
+}
+@mixin justifyContentAround {
+    -ms-flex-pack: justify !important;
+    justify-content: space-around !important;
+}
+@mixin alignItemsStart {
+    -ms-flex-align: start !important;
+    align-items: flex-start !important;
+}
+@mixin alignItemsEnd {
+    -ms-flex-align: end !important;
+    align-items: flex-end !important;
+}
+@mixin alignItemsCenter {
+    -ms-flex-align: center !important;
+    align-items: center !important;
+}

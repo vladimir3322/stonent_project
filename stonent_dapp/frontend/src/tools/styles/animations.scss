@@ -1,0 +1,144 @@
+@import 'styles/helpers';
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content;
+    }
+    @-moz-keyframes #{$name} {
+        @content;
+    }
+    @-ms-keyframes #{$name} {
+        @content;
+    }
+    @keyframes #{$name} {
+        @content;
+    }
+}
+@mixin animation($data...) {
+    -webkit-animation: $data;
+    -moz-animation: $data;
+    -o-animation: $data;
+    animation: $data;
+}
+@mixin animationName($data...) {
+    -webkit-animation-name: $data;
+    -moz-animation-name: $data;
+    -o-animation-name: $data;
+    animation-name: $data;
+}
+@mixin animationDuration($data...) {
+    -webkit-animation-duration: $data;
+    -moz-animation-duration: $data;
+    -o-animation-duration: $data;
+    animation-duration: $data;
+}
+@mixin animationDelay($data...) {
+    -webkit-animation-delay: $data;
+    -moz-animation-delay: $data;
+    -o-animation-delay: $data;
+    animation-delay: $data;
+}
+@mixin animationDirection($data...) {
+    -webkit-animation-direction: $data;
+    -moz-animation-direction: $data;
+    -o-animation-direction: $data;
+    animation-direction: $data;
+}
+@mixin animationTimingFunction($data...) {
+    -webkit-animation-timing-function: $data;
+    -moz-animation-timing-function: $data;
+    -o-animation-timing-function: $data;
+    animation-timing-function: $data;
+}
+@mixin animationIterationCount($data...) {
+    -webkit-animation-iteration-count: $data;
+    -moz-animation-iteration-count: $data;
+    -o-animation-iteration-count: $data;
+    animation-iteration-count: $data;
+}
+@mixin animate($data) {
+    @include keyframes(nth($data, 1)) {
+        @content;
+    }
+    @include animation($data);
+}
+@mixin transition($data) {
+    -webkit-transition: $data;
+    -moz-transition: $data;
+    -o-transition: $data;
+    transition: $data;
+}
+@mixin transitionDelay($data) {
+    -webkit-transition-delay: $data;
+    -o-transition-delay: $data;
+    -moz-transition-delay: $data;
+    transition-delay: $data;
+}
+@mixin animateMoveFromTopToBottom($animationName, $elemSize) {
+    @include keyframes($animationName) {
+        from {
+            top: 0;
+        }
+
+        to {
+            top: calc(100% - #{$elemSize});
+        }
+    }
+}
+@mixin animateMoveFromBottomToTop($animationName, $elemSize) {
+    @include keyframes($animationName) {
+        from {
+            top: calc(100% - #{$elemSize});
+        }
+
+        to {
+            top: 0;
+        }
+    }
+}
+@mixin animateMoveFromLeftToRight($animationName, $elemSize) {
+    @include keyframes($animationName) {
+        from {
+            left: 0;
+        }
+
+        to {
+            left: calc(100% - #{$elemSize});
+        }
+    }
+}
+@mixin animateMoveFromRightToLeft($animationName, $elemSize) {
+    @include keyframes($animationName) {
+        from {
+            left: calc(100% - #{$elemSize});
+        }
+
+        to {
+            left: 0;
+        }
+    }
+}
+@mixin animateRotation($animationName) {
+    @include keyframes($animationName) {
+        from {
+            @include rotate(0deg);
+        }
+
+        to {
+            @include rotate(360deg);
+        }
+    }
+}
+@mixin animateRotationReverse($animationName) {
+    @include keyframes($animationName) {
+        from {
+            @include rotate(360deg);
+        }
+
+        to {
+            @include rotate(0deg);
+        }
+    }
+}
+@mixin easeTransition() {
+    @include transition(all 0.3s ease);
+}

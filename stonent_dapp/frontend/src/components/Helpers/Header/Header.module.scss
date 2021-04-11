@@ -1,0 +1,24 @@
+@import 'tools/styles/flex';
+
+.header {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentBetween();
+}
+
+.right {
+    @include dFlex();
+    @include flexRow();
+    @include alignItemsCenter();
+}
+
+.input {
+    background: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-right: 10px;
+
+    .searchIcon {
+        cursor: pointer;
+    }
+}

@@ -1,0 +1,12 @@
+@import 'tools/styles/flex';
+
+.spinnerPage {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentCenter();
+    @include alignItemsCenter();
+
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}

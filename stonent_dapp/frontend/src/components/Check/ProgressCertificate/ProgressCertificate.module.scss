@@ -1,0 +1,24 @@
+@import 'tools/styles/flex';
+
+.progressCertificate {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentBetween();
+    @include alignItemsCenter();
+}
+
+.verdict {
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    border: 1px solid #ff9800 !important;
+    color: #ff9800 !important;
+}
+
+.wait {
+    @include dFlex();
+    @include flexColumn();
+    @include justifyContentCenter();
+
+    width: fit-content;
+}

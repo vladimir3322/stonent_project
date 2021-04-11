@@ -1,0 +1,32 @@
+@import 'tools/styles/flex';
+
+.emptyCertificate {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentBetween();
+    @include alignItemsCenter();
+}
+
+.verdict {
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+    border: 1px solid #f44336 !important;
+}
+
+.certify {
+    @include dFlex();
+    @include flexColumn();
+    @include alignItemsEnd();
+
+    width: fit-content;
+    margin-top: 20px;
+
+    .button {
+        @include dFlex();
+        @include flexRow();
+        @include justifyContentCenter();
+
+        width: 100%;
+    }
+}

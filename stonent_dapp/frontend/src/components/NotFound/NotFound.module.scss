@@ -1,0 +1,25 @@
+@import 'tools/styles/flex';
+
+.container {
+    @include dFlex();
+    @include flexColumn();
+    @include justifyContentCenter();
+
+    height: calc(100vh - 64px);
+}
+
+.notFound {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentCenter();
+
+    margin-top: -100px;
+}
+
+.mainPage {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentCenter();
+
+    margin-top: 20px;
+}

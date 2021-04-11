@@ -1,0 +1,75 @@
+@import 'tools/styles/flex';
+@import 'tools/styles/helpers';
+
+.row {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentBetween();
+    @include alignItemsCenter();
+
+    margin-bottom: 5px;
+    height: 30px;
+
+    .text {
+        @include hiddenOverflowText();
+
+        max-width: 300px;
+    }
+
+    .title {
+        width: 190px !important;
+    }
+
+    .solid {
+        @include dFlex();
+        @include flexRow();
+    }
+}
+
+.result {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentBetween();
+    @include alignItemsCenter();
+
+    margin-top: 20px;
+}
+
+.verdict {
+    width: fit-content;
+    height: fit-content;
+    padding: 10px;
+}
+
+.succeedVerdict {
+    @extend .verdict;
+
+    border: 1px solid #4caf50 !important;
+    color: #4caf50 !important;
+}
+
+.danderVerdict {
+    @extend .verdict;
+
+    border: 1px solid #f44336 !important;
+    color: #f44336 !important;
+}
+
+.scoreBar {
+    width: 100%;
+    margin-top: 20px;
+
+    .title {
+        @include dFlex();
+        @include flexRow();
+        @include justifyContentBetween();
+
+        margin-bottom: 5px;
+    }
+
+    .bar {
+        background: linear-gradient(0.25turn, #f44336, #4caf50);
+        width: 100%;
+        height: 20px;
+    }
+}

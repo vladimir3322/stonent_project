@@ -1,0 +1,65 @@
+@import 'tools/styles/flex';
+@import 'tools/styles/helpers';
+
+.imagePart {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentBetween();
+
+    width: 100%;
+    height: calc(100vh - 64px);
+    box-sizing: border-box;
+}
+
+.image {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentCenter();
+    @include alignItemsCenter();
+
+    width: 50%;
+    height: fit-content;
+    padding-right: 20px;
+    box-sizing: border-box;
+    padding-top: 25px;
+
+    img {
+        max-width: 100%;
+        max-height: 80vh;
+        width: auto;
+    }
+}
+
+.info {
+    width: 50%;
+    padding-top: 25px;
+
+    .top {
+        @include dFlex();
+        @include flexRow();
+        @include justifyContentBetween();
+        @include alignItemsCenter();
+
+        margin-bottom: 10px;
+    }
+
+    .description {
+        @include customScrollbar() {
+            width: 5px;
+            background: #f7f8f9;
+        }
+        @include customScrollThumb() {
+            @include borderRadius(3.5px);
+
+            width: 5px;
+            background: #212121;
+        }
+
+        max-height: 29vh;
+        overflow-y: auto;
+    }
+
+    .certificate {
+        margin-top: 20px;
+    }
+}
