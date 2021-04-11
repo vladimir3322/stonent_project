@@ -23,23 +23,24 @@ def async_wrap(func):
     return run
 
 
-async def handle_event(contract, event):
+async def handle_event(event):
     image_id = event["args"]["_id"]
+    image_url = f'{config.config.get_ipfs_url()}{event["args"]["_value"]}'
 
     print(f'New event: {image_id}')
 
     metadata['found_images'] += 1
 
-    download_error = await did.download_image_data(contract, image_id)
+    download_error = await did.download_image_data(image_url, image_id)
 
     if not download_error:
         metadata['downloaded_images'] += 1
 
 
-async def iterate_events(contract, event_filter, poll_interval):
+async def iterate_events(event_filter, poll_interval):
     while True:
         for event in event_filter.get_new_entries():
-            await handle_event(contract, event)
+            await handle_event(event)
 
             max_count_NFTs_watcher = config.config.get_max_count_NFTs_watcher()
 
@@ -64,7 +65,7 @@ def listen_images():
 
     try:
         print('Images listener started!')
-        task = asyncio.gather(iterate_events(contract, contract_filter, 2))
+        task = asyncio.gather(iterate_events(contract_filter, 2))
         loop.run_until_complete(task)
     finally:
         metadata['found_images'] = 0
