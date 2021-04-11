@@ -66,6 +66,15 @@ async def download_image_data(data_ipfs_url, image_id, save_to_disk=True):
         async with aiohttp.ClientSession() as request:
             async with request.get(image_source_ipfs_url) as data_response:
                 if data_response.status != 200:
+                    print(f'Source request response code: {data_response.status}')
+                    print(f'For url: {image_source_ipfs_url}')
+
+                    try:
+                        data = await data_response.text()
+                        print(data)
+                    except:
+                        pass
+
                     return errors['failed_image_source_request']
                 image_source = await data_response.read()
     except Exception as e:
