@@ -31,3 +31,11 @@ The result output of our system is the output of this classificator. Here you ca
 
 
 ![Alt text](images/output_examples.png?raw=true "Title")
+
+
+## Run adapter:
+1. Go to the adapter dir: `cd stonent/adapter`
+2. Set your Web3 http provider as environment variable: `WEB_3_PROVIDER`
+3. Run docker: `docker-compose up`
+4. ...
+5. Profit!
