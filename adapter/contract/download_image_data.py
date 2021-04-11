@@ -20,8 +20,7 @@ errors = {
 }
 
 
-async def download_image_data(contract, image_id, save_to_disk=True):
-    data_ipfs_url = contract.functions.uri(image_id).call()
+async def download_image_data(data_ipfs_url, image_id, save_to_disk=True):
     parsed_data_ipfs_url = urlparse(data_ipfs_url)
 
     if not parsed_data_ipfs_url.path or parsed_data_ipfs_url.path == '/':
