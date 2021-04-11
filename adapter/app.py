@@ -105,4 +105,4 @@ def call_adapter():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port='8080', threaded=True)
+    app.run(debug=True, host='0.0.0.0', port='9090', threaded=True)

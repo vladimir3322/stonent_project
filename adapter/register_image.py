@@ -15,6 +15,6 @@ if __name__ == '__main__':
     # send http request with image and receive response
     content_type = 'image/jpeg'
     headers = {'content-type': content_type}
-    response = requests.post('http://0.0.0.0:8080/register_image', data=img_encoded.tostring(), headers=headers)
+    response = requests.post('http://0.0.0.0:9090/register_image', data=img_encoded.tostring(), headers=headers)
     # decode response
     print(json.loads(response.text))
