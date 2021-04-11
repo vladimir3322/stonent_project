@@ -65,8 +65,8 @@ class Adapter:
 
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            # TODO: replace contract to full uri
-            task = asyncio.gather(download_image_data(contract, nftID, save_to_disk=False))
+            data_ipfs_url = contract.functions.uri(nftID).call()
+            task = asyncio.gather(download_image_data(data_ipfs_url, nftID, save_to_disk=False))
             loop.run_until_complete(task)
 
             task_result = task.result()
