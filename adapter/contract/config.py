@@ -19,10 +19,9 @@ class Config:
     def get_web3_provider(self):
         dotenv_path = join('.env')
         read_dotenv(dotenv_path)
-        provider_url = os.getenv('WEB_3_PROVIDER_URL')
-        provider_key = os.getenv('WEB_3_PROVIDER_KEY')
+        provider_url = os.getenv('WEB_3_PROVIDER')
 
-        return f'{provider_url}/{provider_key}'
+        return provider_url
 
     def get_ipfs_url(self):
         dotenv_path = join('.env')
