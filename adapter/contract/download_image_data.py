@@ -33,6 +33,15 @@ async def download_image_data(data_ipfs_url, image_id, save_to_disk=True):
         async with aiohttp.ClientSession() as request:
             async with request.get(data_ipfs_url) as data_response:
                 if data_response.status != 200:
+                    print(f'Metadata request response code: {data_response.status}')
+                    print(f'For url: {data_ipfs_url}')
+
+                    try:
+                        data = await data_response.text()
+                        print(data)
+                    except:
+                        pass
+
                     return errors['failed_metadata_request']
 
                 data = await data_response.json()
