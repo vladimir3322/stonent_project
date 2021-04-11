@@ -5,3 +5,12 @@ package/
 .idea
 /data
 /source
+
+/stonent_dapp/frontend/node_modules
+/stonent_dapp/frontend/build
+/stonent_dapp/frontend/linter
+/stonent_dapp/frontend/.eslintignore
+/stonent_dapp/frontend/.eslintrc.js
+/stonent_dapp/frontend/.stylelintrc.js
+
+/stonent_dapp/backend/node_modules

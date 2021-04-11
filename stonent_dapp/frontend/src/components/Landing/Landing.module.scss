@@ -1,0 +1,64 @@
+@import 'tools/styles/flex';
+
+.landing {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentCenter();
+    @include alignItemsCenter();
+
+    height: calc(100vh - 64px);
+    width: 100%;
+}
+
+.content {
+    @include dFlex();
+    @include flexColumn();
+    @include alignItemsCenter();
+
+    width: fit-content;
+    height: fit-content;
+}
+
+.title {
+    margin-top: -100px;
+}
+
+.searchContainer {
+    @include dFlex();
+    @include flexRow();
+    @include justifyContentCenter();
+
+    margin-top: 50px;
+    width: 100%;
+}
+
+.search {
+    .searchInput {
+        width: 100%;
+        max-width: 500px;
+
+        .searchIcon {
+            cursor: pointer;
+        }
+    }
+}
+
+.supportedCollections {
+    width: 100%;
+    margin-top: 50px;
+
+    .link {
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.testAlert {
+    position: absolute;
+    color: #f44336;
+    bottom: 20px;
+    right: 20px;
+}

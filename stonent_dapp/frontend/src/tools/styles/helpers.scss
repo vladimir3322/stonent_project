@@ -1,0 +1,98 @@
+@mixin rotate($deg: 180deg) {
+    -webkit-transform: rotate($deg);
+    -moz-transform: rotate($deg);
+    -ms-transform: rotate($deg);
+    -o-transform: rotate($deg);
+    transform: rotate($deg);
+}
+@mixin noSelectText() {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+@mixin hiddenOverflowText() {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+@mixin positionSticky() {
+    position: -webkit-sticky;
+    position: sticky;
+}
+@mixin defaultInput() {
+    border: none;
+
+    &:focus {
+        outline: none;
+    }
+}
+@mixin hideInputCalendar() {
+    &::-webkit-calendar-picker-indicator {
+        -webkit-appearance: none;
+        display: none;
+    }
+}
+@mixin defaultButton() {
+    border: none;
+    background: inherit;
+
+    &:focus {
+        outline: none;
+    }
+}
+@mixin hideScrollbar() {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+@mixin customScrollbar() {
+    &::-webkit-scrollbar {
+        @content;
+    }
+}
+@mixin customScrollThumb() {
+    &::-webkit-scrollbar-thumb {
+        @content;
+    }
+}
+@mixin customScrollTrack() {
+    &::-webkit-scrollbar-track {
+        @content;
+    }
+}
+@mixin disableDrag() {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+}
+@mixin borderRadius($value) {
+    -moz-border-radius: $value;
+    -webkit-border-radius: $value;
+    border-radius: $value;
+}
+@mixin borderBottomLeft($value) {
+    -webkit-border-bottom-left-radius: $value;
+    border-bottom-left-radius: $value;
+}
+@mixin borderBottomRight($value) {
+    -webkit-border-bottom-right-radius: $value;
+    border-bottom-right-radius: $value;
+}
+@mixin borderTopLeft($value) {
+    -webkit-border-top-left-radius: $value;
+    border-top-left-radius: $value;
+}
+@mixin borderTopRight($value) {
+    -webkit-border-top-right-radius: $value;
+    border-top-right-radius: $value;
+}
+@mixin overflowX($value) {
+    -ms-overflow-x: $value;
+    overflow-x: $value;
+}
