@@ -1,15 +1,15 @@
-package waper
+package api
 
 import (
+	"../models"
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/ethclient"
-	Models "github.com/vladimir3322/stonent_project/golang_adapter/models"
 	"log"
 	"math/big"
 )
 
-func GetLatestBlock(client ethclient.Client) *Models.Block {
+func GetLatestBlock(client ethclient.Client) *models.Block {
 	// We add a recover function from panics to prevent our API from crashing due to an unexpected error
 	defer func() {
 		if err := recover(); err != nil {
@@ -27,17 +27,17 @@ func GetLatestBlock(client ethclient.Client) *Models.Block {
 	}
 
 	// Build the response to our model
-	_block := &Models.Block{
+	_block := &models.Block{
 		BlockNumber:       block.Number().Int64(),
 		Timestamp:         block.Time(),
 		Difficulty:        block.Difficulty().Uint64(),
 		Hash:              block.Hash().String(),
 		TransactionsCount: len(block.Transactions()),
-		Transactions:      []Models.Transaction{},
+		Transactions:      []models.Transaction{},
 	}
 
 	for _, tx := range block.Transactions() {
-		_block.Transactions = append(_block.Transactions, Models.Transaction{
+		_block.Transactions = append(_block.Transactions, models.Transaction{
 			Hash:     tx.Hash().String(),
 			Value:    tx.Value().String(),
 			Gas:      tx.Gas(),
