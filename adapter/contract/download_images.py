@@ -36,7 +36,6 @@ async def run_blocks_interval(loop, contract, block_from, block_to):
         image_url = f'{config.config.get_ipfs_url()}{event["args"]["_value"]}'
         download_error = await did.download_image_data(image_url, event["args"]["_id"])
         max_count_NFTs_loader = config.config.get_max_count_NFTs_loader()
-
         if download_error:
             print(download_error)
             continue
