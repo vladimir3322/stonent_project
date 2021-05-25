@@ -1,0 +1,39 @@
+version: '3'
+
+
+volumes:
+  rabbitmq:
+    driver: local
+
+services:
+  ml:
+    build: ./services/ml
+    ports:
+      - 9090:9090
+    depends_on:
+      - rabbitmq
+      - loader
+  loader:
+    build: ./services/loader
+    ports:
+      - 5000:5000
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    restart: always
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+#  redis:
+#    image: "redis:6.2.2"
+#    command: redis-server
+#    ports:
+#      - 6379:6379
