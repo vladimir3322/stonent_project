@@ -14,27 +14,27 @@ type iImageMetadata struct {
 	Image string
 }
 
-func GetById(contract *erc1155.Erc1155, id *big.Int) ([]byte, error) {
+func GetById(contract *erc1155.Erc1155, id *big.Int) (string, error) {
 	opt := &bind.FilterOpts{}
 	s := []*big.Int{id}
 
 	event, err := contract.FilterURI(opt, s)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	isExist := event.Next()
 
 	if !isExist {
-		return nil, errors.New("event not found")
+		return "", errors.New("event not found")
 	}
 
 	// TODO: set to 0
 	imageSource, err := getImageSource(config.IpfsLink[len(config.IpfsLink)-1], event.Event.Value)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return imageSource, nil
@@ -43,7 +43,7 @@ func GetById(contract *erc1155.Erc1155, id *big.Int) ([]byte, error) {
 func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, endBlock uint64, waiter *sync.WaitGroup) {
 	defer waiter.Done()
 
-	if config.DownloadImageMaxCount != -1 && countOfDownloaded >= config.DownloadImageMaxCount {
+	if IsExceededImagesLimitCount() {
 		waiter.Done()
 		return
 	}
@@ -53,7 +53,7 @@ func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, end
 		s := []*big.Int{}
 		past, err := contract.FilterURI(opt, s)
 
-		if config.DownloadImageMaxCount != -1 && countOfDownloaded >= config.DownloadImageMaxCount {
+		if IsExceededImagesLimitCount() {
 			waiter.Done()
 			return
 		}
@@ -72,7 +72,7 @@ func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, end
 		ipfsNodeIndex := 0
 
 		for notEmpty {
-			if config.DownloadImageMaxCount != -1 && countOfDownloaded >= config.DownloadImageMaxCount {
+			if IsExceededImagesLimitCount() {
 				waiter.Done()
 				return
 			}

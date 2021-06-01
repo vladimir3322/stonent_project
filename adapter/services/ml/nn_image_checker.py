@@ -1,6 +1,5 @@
 import torch
 import nmslib
-
 import numpy as np
 
 from torch import nn
@@ -12,12 +11,12 @@ from scipy.stats import logistic
 class NNModelChecker:
     def __init__(self):
         """
-        We will use renset50 trained on ImageNet as feature extructor.
+        We will use renset50 trained on ImageNet as feature extractor.
         To get features we remove last classification layer of the nn.
         To find nearest features we use nmslib index.
         """
         model = torch.hub.load('pytorch/vision:v0.9.0', 'resnet50', pretrained=True)
-        self.feature_extructor = nn.Sequential(*list(model._modules.values())[:-1])
+        self.feature_extractor = nn.Sequential(*list(model._modules.values())[:-1])
 
         self.preprocess = transforms.Compose([
                           transforms.Resize(256),
@@ -44,7 +43,7 @@ class NNModelChecker:
             if image.shape[-1] == 4:
                 image = image[..., :3]
             input_image = self.preprocess(Image.fromarray(image))
-            return self.feature_extructor(input_image[None, :])[0].reshape(-1)
+            return self.feature_extractor(input_image[None, :])[0].reshape(-1)
 
     def _transform_scores(self, scores):
         """
@@ -67,15 +66,15 @@ class NNModelChecker:
         """
         return np.dot(input1, input2.T) / np.sqrt(np.dot(input1, input1.T) * np.dot(input2, input2.T))
 
-    def add_image_to_storage(self, pil_image, descr):
+    def add_image_to_storage(self, pil_image, description):
         """
         :param pil_image: image loaded py PIL library.
-        :param descr: decription of the image. Will be returned if image will be chosen as neighbour
+        :param description: description of the image. Will be returned if image will be chosen as neighbour
         :return: None
         """
         features = self._get_features(pil_image)
         index = len(self._feature_dict)
-        self._feature_dict[index] = descr
+        self._feature_dict[index] = description
         self._index.addDataPoint(data=features, id=index)
         self._index_need_to_be_build = True
 
@@ -85,7 +84,7 @@ class NNModelChecker:
         :param num: number of neighbours to return
         :return: scores, nearest_descriptions.
                  scores - Scores of simularity between pil_image and neighbours
-                 nearest_descriptions — decriptions of neighbours
+                 nearest_descriptions — descriptions of neighbours
         """
         if self._index_need_to_be_build:
             self._index.createIndex({'post': 2})

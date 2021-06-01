@@ -22,8 +22,6 @@ func main() {
 	go getEvents("0xd07dc4262bcdbf85190c01c996b4c06a461d2430", 12291940, 12291943) // 4 картины
 
 	//go listenEvents("0xd07dc4262bcdbf85190c01c996b4c06a461d2430", 12291943)
-	//go rabbitmq.SendTestNFT()
-	//go redis.ConsumeEvents()
 	go server.Run()
 	utils.WaitSignals()
 

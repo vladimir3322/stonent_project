@@ -33,5 +33,5 @@ func SendNFTToRabbit(nft models.NFT) {
 		log.Fatalf("Error publishing message: %s", err)
 	}
 
-	log.Printf("Sended nft to Rabbit: id = %s, addr = %s ", nft.NFTID, nft.ContractAddress)
+	log.Printf("Sent nft to Rabbit: id = %s, addr = %s ", nft.NFTID, nft.ContractAddress)
 }

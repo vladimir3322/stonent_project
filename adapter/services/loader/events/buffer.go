@@ -15,32 +15,38 @@ type BufferItem struct {
 
 var Buffer = make(chan BufferItem)
 var bufferSize = 0
-var countOfDownloaded = 0
-var mutex = sync.Mutex{}
+var CountOfFound = 0
+var CountOfDownloaded = 0
+var Mutex = sync.Mutex{}
+
+func IsExceededImagesLimitCount() bool {
+	return config.DownloadImageMaxCount != -1 && CountOfDownloaded >= config.DownloadImageMaxCount
+}
 
 func pushToBuffer(item BufferItem) {
-	mutex.Lock()
+	Mutex.Lock()
+	defer Mutex.Unlock()
+
+	CountOfFound += 1
 
 	for bufferSize >= config.DownloadImageBufferSize {
 
 	}
 
-	if config.DownloadImageMaxCount != -1 && countOfDownloaded >= config.DownloadImageMaxCount {
+	if IsExceededImagesLimitCount() {
 		item.waiter.Done()
 		return
 	}
 
 	bufferSize += 1
 	Buffer <- item
-
-	mutex.Unlock()
 }
 
 func RunBuffer() {
 	for {
 		select {
 		case item := <-Buffer:
-			if config.DownloadImageMaxCount != -1 && countOfDownloaded >= config.DownloadImageMaxCount {
+			if IsExceededImagesLimitCount() {
 				item.waiter.Done()
 				return
 			}
@@ -49,7 +55,10 @@ func RunBuffer() {
 				bufferSize -= 1
 
 				if isSucceed {
-					countOfDownloaded += 1
+					Mutex.Lock()
+					defer Mutex.Unlock()
+
+					CountOfDownloaded += 1
 				}
 			})
 		}

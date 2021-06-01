@@ -2,6 +2,7 @@ import pika
 import config
 import json
 import time
+import base64
 
 
 def connect_with_retry():
@@ -11,12 +12,11 @@ def connect_with_retry():
         connection = pika.BlockingConnection(parameters=parameters)
 
         if connection.is_open:
-            print('Successfully connected to Rabbit', flush=True)
             return connection
         else:
-            raise BaseException
-    except:
-        print('Rabbit connection failed, restarting', flush=True)
+            raise Exception('Rabbit connection closed')
+    except Exception as e:
+        print(f'Rabbit connection failed: "{e}", restarting', flush=True)
         time.sleep(1)
         return connect_with_retry()
 
@@ -25,7 +25,8 @@ def get_safe_consumer(connection, queue):
     try:
         channel = connection.channel()
         return channel, channel.consume(queue)
-    except:
+    except Exception as e:
+        print(f'Rabbit connection failed: "{e}", restarting', flush=True)
         time.sleep(1)
         return get_safe_consumer(connection, queue)
 
@@ -40,8 +41,8 @@ def safe_consume(queue):
                 channel.basic_ack(method_frame.delivery_tag)
 
                 yield method_frame, properties, body
-        except:
-            print('Failed to consume from Rabbit, retrying', flush=True)
+        except Exception as e:
+            print(f'Failed to consume from Rabbit: "{e}", retrying', flush=True)
             connection = connect_with_retry()
             channel, consumer = get_safe_consumer(connection, queue)
 
@@ -56,13 +57,8 @@ def consume_events():
 
         contract_address = data['contractAddress']
         nft_id = data['nftID']
-        image_source = data['data']
+        image_bytes_source = base64.b64decode(data['data'])
 
-        with open(f'./{nft_id}', 'wb') as f:
-            f.write(str.encode(image_source))
-            f.close()
+        print('Received from Rabbit:', nft_id, contract_address, flush=True)
 
-        print('Received from Rabbit:', contract_address, nft_id, len(image_source), flush=True)
-        print('Image fragment:', image_source[-100:], flush=True)
-
-        yield contract_address, nft_id, image_source
+        yield contract_address, nft_id, image_bytes_source

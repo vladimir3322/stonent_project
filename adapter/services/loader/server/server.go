@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -13,7 +14,7 @@ import (
 	"strconv"
 )
 
-func handleGetImageSource(w http.ResponseWriter, r *http.Request) {
+func getImageSource(w http.ResponseWriter, r *http.Request) {
 	address := r.URL.Query().Get("address")
 
 	if address == "" {
@@ -64,13 +65,33 @@ func handleGetImageSource(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(imageSource)
+	w.Write([]byte(imageSource))
+}
+
+func getStatistics(w http.ResponseWriter, _ *http.Request) {
+	type IResponse struct {
+		CountOfFound int
+		CountOfDownloaded int
+	}
+
+	events.Mutex.Lock()
+	defer events.Mutex.Unlock()
+
+	var response = IResponse{
+		CountOfFound: events.CountOfFound,
+		CountOfDownloaded: events.CountOfDownloaded,
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func Run() {
-	http.HandleFunc("/image_source", handleGetImageSource)
+	http.HandleFunc("/image_source", getImageSource)
+	http.HandleFunc("/statistics", getStatistics)
 
-	err := http.ListenAndServe(":"+strconv.Itoa(config.ServerPort), nil)
+	err := http.ListenAndServe(":" + strconv.Itoa(config.ServerPort), nil)
 
 	if err != nil {
 		log.Fatal("Server starting:", err)

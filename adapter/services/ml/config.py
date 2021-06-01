@@ -1,3 +1,5 @@
+server_port = 9090
+
 redis_url = 'redis://redis:6379'
 redis_job_queue = 'imageSources'
 
@@ -8,3 +10,6 @@ rabbit_password = "guest"
 rabbit_host = "rabbitmq"
 rabbit_port = 5672
 rabbit_queue = "indexing"
+
+registered_images_file = './registered_images.txt'
+rejected_images_file = './rejected_images.txt'

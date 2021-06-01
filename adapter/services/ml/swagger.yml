@@ -1,0 +1,222 @@
+openapi: 3.0.0
+info:
+  title: Stonent ML
+  version: '1.0'
+servers:
+  - url: 'http://localhost:9090'
+
+paths:
+  '/check':
+    get:
+      summary: Call adapter result
+      parameters:
+        - $ref: '#/components/parameters/contract_address'
+        - $ref: '#/components/parameters/nft_id'
+      responses:
+        '200':
+          description: Retrieve adapter result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAdapterResponse'
+
+  '/register_new_image':
+    get:
+      summary: Separate request to index a single image by NN
+      parameters:
+        - $ref: '#/components/parameters/contract_address'
+        - $ref: '#/components/parameters/nft_id'
+      responses:
+        '200':
+          description: Successfully indexed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterNewImageResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterNewImageResponse'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterNewImageResponse'
+
+  '/check_registered_image':
+    get:
+      summary: Check if an image has been indexed by NN
+      parameters:
+        - $ref: '#/components/parameters/contract_address'
+        - $ref: '#/components/parameters/nft_id'
+      responses:
+        '200':
+          description: Retrieve an answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckRegisteredImageResponse'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckRegisteredImageResponse'
+
+  '/get_rejected_images':
+    get:
+      summary: Get images which have been failed by NN indexing
+      responses:
+        '200':
+          description: Retrieve an array of rejected images
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRejectedImagesResponse'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRejectedImagesResponse'
+
+  '/statistics':
+    get:
+      summary: Get statistics about images indexing process
+      responses:
+        '200':
+          description: Retrieve the statistics information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStatisticsResponse'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStatisticsResponse'
+
+components:
+  parameters:
+    contract_address:
+      in: query
+      name: contract_address
+      required: true
+      schema:
+        type: string
+      example: '0xd07dc4262bcdbf85190c01c996b4c06a461d2430'
+    nft_id:
+      in: query
+      name: nft_id
+      required: true
+      schema:
+        type: string
+      example: '507779'
+
+  schemas:
+    GetAdapterResponse:
+      type: object
+      properties:
+        job_run_iD:
+          description: Has format {contract_address}_{nft_id}
+          type: string
+        data:
+          description: Includes NN score info, field is null if there is an error
+          type: object
+          properties:
+            score:
+              description: Number from 0 to 100, final image score
+              type: number
+            detailed_information:
+              description: Info about the most similar pictures found by NN
+              type: object
+              properties:
+                scores:
+                  description: Is array of floats from 0 to 1
+                  type: array
+                  items:
+                    type: number
+                    format: float
+                descriptions:
+                  description: Is array of corresponding pictures identifiers with format {contract_address}_{nft_id}
+                  type: array
+                  items:
+                    type: string
+              required:
+                - scores
+                - descriptions
+          required:
+            - score
+            - detailed_information
+          nullable: true
+        error:
+          description: Is null if everything ok
+          type: string
+          nullable: true
+        statusCode:
+          description: http-like response status code
+          type: number
+      required:
+        - jobRunID
+        - data
+        - error
+        - statusCode
+
+    RegisterNewImageResponse:
+      type: object
+      properties:
+        error:
+          description: Is null if everything ok
+          type: string
+          nullable: true
+      required:
+        - error
+
+    CheckRegisteredImageResponse:
+      type: object
+      properties:
+        is_registered:
+          type: boolean
+        error:
+          type: string
+
+    GetRejectedImagesResponse:
+      type: object
+      properties:
+        rejected_images:
+          description: One picture per array item
+          type: array
+          items:
+            type: object
+            properties:
+              contract_address:
+                type: string
+              nft_id:
+                type: string
+            required:
+              - contract_address
+              - nft_id
+        error:
+          type: string
+
+    GetStatisticsResponse:
+      type: object
+      properties:
+        found_images_count:
+          description: Images found in contracts by Loader service
+          type: number
+        precessed_imaged_count:
+          description: Downloaded images which have been sent to Rabbit
+          type: number
+        registered_images_count:
+          description: Images which have been successfully indexed by NN
+          type: number
+        rejected_images_count:
+          description: Images which have not been indexed by NN
+          type: number
+        error:
+          type: string
