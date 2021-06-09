@@ -3,6 +3,7 @@ import config
 import json
 import time
 import base64
+import globals
 
 
 def connect_with_retry():
@@ -14,7 +15,7 @@ def connect_with_retry():
         if connection.is_open:
             return connection
         else:
-            raise Exception('Rabbit connection closed')
+            raise Exception('Connection closed')
     except Exception as e:
         print(f'Rabbit connection failed: "{e}", restarting', flush=True)
         time.sleep(1)
@@ -24,6 +25,7 @@ def connect_with_retry():
 def get_safe_consumer(connection, queue):
     try:
         channel = connection.channel()
+
         return channel, channel.consume(queue)
     except Exception as e:
         print(f'Rabbit connection failed: "{e}", restarting', flush=True)
@@ -50,7 +52,7 @@ def safe_consume(queue):
 
 
 def consume_events():
-    print('START RABBIT', flush=True)
+    print('Start Rabbit', flush=True)
 
     for method_frame, properties, body in safe_consume(config.rabbit_queue):
         data = json.loads(body)
@@ -58,6 +60,12 @@ def consume_events():
         contract_address = data['contractAddress']
         nft_id = data['nftID']
         image_bytes_source = base64.b64decode(data['data'])
+        is_finite = data['isFinite']
+
+        if is_finite:
+            globals.all_images_has_been_downloaded = True
+            print('End Rabbit', flush=True)
+            return
 
         print('Received from Rabbit:', nft_id, contract_address, flush=True)
 

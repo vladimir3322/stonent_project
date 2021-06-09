@@ -17,7 +17,6 @@ type iImageMetadata struct {
 func GetById(contract *erc1155.Erc1155, id *big.Int) (string, error) {
 	opt := &bind.FilterOpts{}
 	s := []*big.Int{id}
-
 	event, err := contract.FilterURI(opt, s)
 
 	if err != nil {
@@ -49,8 +48,9 @@ func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, end
 	}
 
 	if startBlock <= endBlock {
+		var s []*big.Int
+
 		opt := &bind.FilterOpts{Start: startBlock, End: &endBlock}
-		s := []*big.Int{}
 		past, err := contract.FilterURI(opt, s)
 
 		if IsExceededImagesLimitCount() {
@@ -64,7 +64,7 @@ func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, end
 			waiter.Add(1)
 			go GetEvents(address, contract, startBlock, middleBlock, waiter)
 			waiter.Add(1)
-			go GetEvents(address, contract, middleBlock+1, endBlock, waiter)
+			go GetEvents(address, contract, middleBlock + 1, endBlock, waiter)
 			return
 		}
 
@@ -78,6 +78,7 @@ func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, end
 			}
 
 			notEmpty = past.Next()
+
 			if notEmpty {
 				waiter.Add(1)
 
@@ -99,13 +100,14 @@ func GetEvents(address string, contract *erc1155.Erc1155, startBlock uint64, end
 }
 
 func ListenEvents(address string, contract *erc1155.Erc1155, startBlock uint64) {
-	s := []*big.Int{}
-	ch := make(chan *erc1155.Erc1155URI)
+	var s []*big.Int
+
 	opts := &bind.WatchOpts{Start: &startBlock}
+	ch := make(chan *erc1155.Erc1155URI)
 	watcher, err := contract.WatchURI(opts, ch, s)
 
 	if err != nil {
-		fmt.Println("Failed listening events:", err)
+		fmt.Println("failed listening events:", err)
 	}
 
 	ipfsNodeIndex := 0
@@ -113,7 +115,7 @@ func ListenEvents(address string, contract *erc1155.Erc1155, startBlock uint64) 
 	for {
 		select {
 		case err := <-watcher.Err():
-			fmt.Println("Failed listening events:", err)
+			fmt.Println("failed listening events:", err)
 		case Event := <-ch:
 			fmt.Println(Event.Value)
 

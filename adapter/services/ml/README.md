@@ -1,30 +1,15 @@
-# Chainlink Python Serverless External Adapter Template
+# ML
 
-![Lint and unit testing](https://github.com/thodges-gh/CL-EA-Python-Template/workflows/Lint%20and%20unit%20testing/badge.svg)
+The core of this service is neural network which make indexing nft-pictures and is able to check plagiarism.
+This service is two-threading program completing the next tasks:
 
-This template shows a basic usecase of an external adapter written in Python for the CryptoCompare API. It can be ran locally, in Docker, AWS Lambda, or GCP Functions.
+1. NN indexing
 
+    New images are received from RabbitMQ and send to the NN.
 
-## Run with Docker
+2. Simple HTTP-server
 
-Build the image
+    Provides interface to interact with NN and receive statistics data, see [Swagger](./swagger.yml) for more details.
 
-```
-docker build . -t cl-ea
-```
-
-Run the container
-
-```
-docker run -it -p 8080:8080 cl-ea
-```
-
-Register image
-```
-python python3 register_image.py <path>
-```
-
-Score image
-```
-python python3 image_score.py <path>
-```
+After launch, service wait RabbitMQ connection.
+Then service starts to consume images, indexes NN and processes HTTP-server.

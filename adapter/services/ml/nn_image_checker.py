@@ -8,7 +8,7 @@ from torchvision import transforms
 from scipy.stats import logistic
 
 
-class NNModelChecker:
+class NNImageChecker:
     def __init__(self):
         """
         We will use renset50 trained on ImageNet as feature extractor.
@@ -16,6 +16,7 @@ class NNModelChecker:
         To find nearest features we use nmslib index.
         """
         model = torch.hub.load('pytorch/vision:v0.9.0', 'resnet50', pretrained=True)
+
         self.feature_extractor = nn.Sequential(*list(model._modules.values())[:-1])
 
         self.preprocess = transforms.Compose([
@@ -37,12 +38,15 @@ class NNModelChecker:
         """
         with torch.no_grad():
             image = np.array(pil_image)
+
             if image.ndim == 2:
                 image = image[..., None]
                 image = np.concatenate([image, image, image], -1)
             if image.shape[-1] == 4:
                 image = image[..., :3]
+
             input_image = self.preprocess(Image.fromarray(image))
+
             return self.feature_extractor(input_image[None, :])[0].reshape(-1)
 
     def _transform_scores(self, scores):
@@ -55,6 +59,7 @@ class NNModelChecker:
         """
         mean = 0.0037
         temp = 10000
+
         return logistic.cdf((scores - mean) * temp)
 
     @staticmethod
@@ -74,6 +79,7 @@ class NNModelChecker:
         """
         features = self._get_features(pil_image)
         index = len(self._feature_dict)
+
         self._feature_dict[index] = description
         self._index.addDataPoint(data=features, id=index)
         self._index_need_to_be_build = True
@@ -89,8 +95,10 @@ class NNModelChecker:
         if self._index_need_to_be_build:
             self._index.createIndex({'post': 2})
             self._index_need_to_be_build = False
+
         features = self._get_features(pil_image)
         indexes, scores = self._index.knnQuery(features, k=num)
         nearest_descriptions = [self._feature_dict[index] for index in indexes]
         scores = self._transform_scores(scores)
+
         return scores, nearest_descriptions

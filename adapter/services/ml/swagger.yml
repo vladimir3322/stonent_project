@@ -66,7 +66,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/CheckRegisteredImageResponse'
 
-  '/get_rejected_images':
+  '/rejected_images_by_nn':
     get:
       summary: Get images which have been failed by NN indexing
       responses:
@@ -75,13 +75,30 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetRejectedImagesResponse'
+                $ref: '#/components/schemas/GetRejectedImagesByNNResponse'
         '500':
           description: Internal error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetRejectedImagesResponse'
+                $ref: '#/components/schemas/GetRejectedImagesByNNResponse'
+
+  '/rejected_images_by_ipfs':
+    get:
+      summary: Get images which have been failed by downloading from IPFS
+      responses:
+        '200':
+          description: Retrieve an array of rejected images
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRejectedImagesByIPFSResponse'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRejectedImagesByIPFSResponse'
 
   '/statistics':
     get:
@@ -184,10 +201,10 @@ components:
         error:
           type: string
 
-    GetRejectedImagesResponse:
+    GetRejectedImagesByNNResponse:
       type: object
       properties:
-        rejected_images:
+        rejected_images_by_nn:
           description: One picture per array item
           type: array
           items:
@@ -203,20 +220,56 @@ components:
         error:
           type: string
 
+    GetRejectedImagesByIPFSResponse:
+      type: object
+      properties:
+        rejected_images_by_ipfs:
+          type: array
+          items:
+            type: object
+            properties:
+              contract_address:
+                type: string
+              nft_id:
+                type: string
+              description:
+                type: string
+            required:
+              - contract_address
+              - nft_id
+              - description
+        error:
+          type: string
+
     GetStatisticsResponse:
       type: object
       properties:
-        found_images_count:
-          description: Images found in contracts by Loader service
-          type: number
-        precessed_imaged_count:
-          description: Downloaded images which have been sent to Rabbit
-          type: number
-        registered_images_count:
-          description: Images which have been successfully indexed by NN
-          type: number
-        rejected_images_count:
-          description: Images which have not been indexed by NN
-          type: number
+        statistics:
+          type: object
+          properties:
+            found_images_count:
+              description: Images found in contracts by Loader service
+              type: number
+            precessed_images_count:
+              description: Downloaded images which have been sent to Rabbit
+              type: number
+            registered_images_count:
+              description: Images which have been successfully indexed by NN
+              type: number
+            rejected_by_ipfs_images_count:
+              description: Images which have not been downloaded by Loader
+              type: number
+            rejected_by_nn_images_count:
+              description: Images which have not been indexed by NN
+              type: number
+            is_completed:
+              description: All images have been indexed and NN is ready for scoring
+          required:
+            - found_images_count
+            - precessed_images_count
+            - registered_images_count
+            - rejected_by_ipfs_images_count
+            - rejected_by_nn_images_count
+            - is_completed
         error:
           type: string

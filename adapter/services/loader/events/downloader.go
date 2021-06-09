@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/vladimir3322/stonent_go/ml"
 	"github.com/vladimir3322/stonent_go/rabbitmq"
 	"github.com/vladimir3322/stonent_go/tools/models"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"sync"
 )
 
@@ -22,13 +22,19 @@ func getImageSource(ipfsHost string, ipfsPath string) (string, error) {
 		return "", errors.New("downloaded image limit exceeded")
 	}
 	if err != nil {
-		return "", errors.New("error with " + ipfsMetadataUrl + " : " + fmt.Sprint(err))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsMetadataUrl, err))
 	}
 	if imageMetadataRes.StatusCode != http.StatusOK {
-		return "", errors.New("error with " + ipfsMetadataUrl + " invalid response code: " + strconv.Itoa(imageMetadataRes.StatusCode))
+		return "", errors.New(fmt.Sprintf("error with %s invalid response code: %d", ipfsMetadataUrl, imageMetadataRes.StatusCode))
 	}
 
-	defer imageMetadataRes.Body.Close()
+	defer func() {
+		err := imageMetadataRes.Body.Close()
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 
 	var jsonBody iImageMetadata
 	imageMetadataParserErr := json.NewDecoder(imageMetadataRes.Body).Decode(&jsonBody)
@@ -37,7 +43,7 @@ func getImageSource(ipfsHost string, ipfsPath string) (string, error) {
 		return "", errors.New("downloaded image limit exceeded")
 	}
 	if imageMetadataParserErr != nil {
-		return "", errors.New("error with: " + ipfsMetadataUrl + " : " + fmt.Sprint(imageMetadataParserErr))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsMetadataUrl, imageMetadataParserErr))
 	}
 
 	parsedImageUrl, err := url.Parse(jsonBody.Image)
@@ -46,7 +52,7 @@ func getImageSource(ipfsHost string, ipfsPath string) (string, error) {
 		return "", errors.New("downloaded image limit exceeded")
 	}
 	if err != nil {
-		return "", errors.New("error with: " + ipfsMetadataUrl + fmt.Sprint(err))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsMetadataUrl, err))
 	}
 
 	imageSourceUrl := ipfsHost + "/ipfs" + parsedImageUrl.Path
@@ -56,13 +62,19 @@ func getImageSource(ipfsHost string, ipfsPath string) (string, error) {
 		return "", errors.New("downloaded image limit exceeded")
 	}
 	if err != nil {
-		return "", errors.New("error with: " + ipfsMetadataUrl + " " + imageSourceUrl + " : " + fmt.Sprint(err))
+		return "", errors.New(fmt.Sprintf("error with %s %s: %s", ipfsMetadataUrl, imageSourceUrl, err))
 	}
 	if imageSourceRes.StatusCode != http.StatusOK {
-		return "", errors.New("Error with: " + ipfsMetadataUrl + " " + imageSourceUrl + " invalid response code: " + strconv.Itoa(imageSourceRes.StatusCode))
+		return "", errors.New(fmt.Sprintf("error with %s %s: invalid response code %d", ipfsMetadataUrl, imageSourceUrl, imageSourceRes.StatusCode))
 	}
 
-	defer imageSourceRes.Body.Close()
+	defer func() {
+		err := imageSourceRes.Body.Close()
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 
 	imageSource, err := ioutil.ReadAll(imageSourceRes.Body)
 
@@ -70,10 +82,10 @@ func getImageSource(ipfsHost string, ipfsPath string) (string, error) {
 		return "", errors.New("downloaded image limit exceeded")
 	}
 	if err != nil {
-		return "", errors.New("error with: " + imageSourceUrl + " " + fmt.Sprint(err))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", imageSourceUrl, err))
 	}
 
-	b64ImageSource := base64.StdEncoding.EncodeToString(imageSource);
+	b64ImageSource := base64.StdEncoding.EncodeToString(imageSource)
 
 	return b64ImageSource, nil
 }
@@ -89,14 +101,16 @@ func downloadImage(address string, nftId string, ipfsHost string, ipfsPath strin
 	imageSource, err := getImageSource(ipfsHost, ipfsPath)
 
 	if err != nil {
-		fmt.Println(err)
+		ml.SentRejectedImageByIPFS(address, nftId, ipfsHost, ipfsPath, err)
+
 		return false
 	}
 
 	rabbitmq.SendNFTToRabbit(models.NFT{
-		NFTID:           nftId,
+		NFTID: nftId,
 		ContractAddress: address,
-		Data:            imageSource,
+		Data: imageSource,
+		IsFinite: false,
 	})
 
 	return true
