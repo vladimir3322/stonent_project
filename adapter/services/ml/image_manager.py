@@ -1,6 +1,6 @@
 from PIL import Image
 from io import BytesIO
-import rabbitmqapi
+import rabbitmq
 import config
 
 
@@ -26,6 +26,6 @@ class ImageManager:
             print("Error in registering new image", e, flush=True)
 
     def register_new_images(self, mutex):
-        for contract_address, nft_id, bytes_source in rabbitmqapi.consume_events():
+        for contract_address, nft_id, bytes_source in rabbitmq.consume_events():
             with mutex:
                 self.register_new_image(contract_address, nft_id, bytes_source)

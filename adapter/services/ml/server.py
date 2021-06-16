@@ -16,6 +16,14 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
+        def extract_query(query, key):
+            res = None
+
+            if query.get(key) and len(query.get(key)):
+                res = query.get(key)[0]
+
+            return res
+
         parsed_url = urlparse(self.path)
         parsed_query = parse_qs(parsed_url.query)
 
@@ -23,32 +31,32 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         response_body = {'error': 'Not found'}
 
         if parsed_url.path == '/check':
-            contract_address = parsed_query.get('contract_address')[0]
-            nft_id = parsed_query.get('nft_id')[0]
+            contract_address = extract_query(parsed_query, 'contract_address')
+            nft_id = extract_query(parsed_query, 'nft_id')
 
             response_body = get_adapter_result(contract_address, nft_id)
             status_code = 200
         elif parsed_url.path == '/register_new_image':
-            contract_address = parsed_query.get('contract_address')[0]
-            nft_id = parsed_query.get('nft_id')[0]
+            contract_address = extract_query(parsed_query, 'contract_address')
+            nft_id = extract_query(parsed_query, 'nft_id')
 
             status_code, response_body = register_new_image(contract_address, nft_id)
         elif parsed_url.path == '/check_registered_image':
-            contract_address = parsed_query.get('contract_address')[0]
-            nft_id = parsed_query.get('nft_id')[0]
+            contract_address = extract_query(parsed_query, 'contract_address')
+            nft_id = extract_query(parsed_query, 'nft_id')
 
             status_code, response_body = check_registered_image(contract_address, nft_id)
+        elif parsed_url.path == '/registered_images':
+            status_code, response_body = get_registered_images()
         elif parsed_url.path == '/register_rejected_image_by_ipfs':
-            contract_address = parsed_query.get('contract_address')[0]
-            nft_id = parsed_query.get('nft_id')[0]
-            ipfs_host = parsed_query.get('ipfs_host')[0]
-            ipfs_path = parsed_query.get('ipfs_path')[0]
-            error = parsed_query.get('error')[0]
+            contract_address = extract_query(parsed_query, 'contract_address')
+            nft_id = extract_query(parsed_query, 'nft_id')
+            ipfs_path = extract_query(parsed_query, 'ipfs_path')
+            error = extract_query(parsed_query, 'error')
 
             status_code, response_body = register_rejected_image_by_ipfs(
                 contract_address,
                 nft_id,
-                ipfs_host,
                 ipfs_path,
                 error
             )
@@ -74,7 +82,7 @@ def get_adapter_result(contract_address, nft_id):
         return {
             'job_run_id': f'{contract_address}_{nft_id}',
             'data': data,
-            'error': error,
+            'error': str(error),
             'statusCode': code,
         }
 
@@ -163,14 +171,12 @@ def check_registered_image(contract_address, nft_id):
             return 500, {'error': e}
 
 
-def register_rejected_image_by_ipfs(contract_address, nft_id, ipfs_host, ipfs_path, error):
+def register_rejected_image_by_ipfs(contract_address, nft_id, ipfs_path, error):
     with globals.mutex:
         if not contract_address:
             return 400, {'error': 'contract_address is required'}
         if not nft_id:
             return 400, {'error': 'nft_id is required'}
-        if not ipfs_host:
-            return 400, {'error': 'ipfs_host is required'}
         if not ipfs_path:
             return 400, {'error': 'ipfs_path is required'}
         if not error:
@@ -179,8 +185,27 @@ def register_rejected_image_by_ipfs(contract_address, nft_id, ipfs_host, ipfs_pa
         try:
             with open(config.rejected_images_by_IPFS_file, 'a') as file:
                 error = error.replace(',', '')
-                print(f'{contract_address},{nft_id},{ipfs_host},{ipfs_path},{error}', file=file)
+                print(f'{contract_address},{nft_id},{ipfs_path},{error}', file=file)
             return 200, {'error': None}
+        except Exception as e:
+            return 500, {'error': e}
+
+
+def get_registered_images():
+    def map_list_to_dict(item):
+        return {
+            'contract_address': item[0],
+            'nft_id': item[1],
+            'format': item[2],
+        }
+
+    with globals.mutex:
+        try:
+            with open(config.registered_images_file) as file:
+                data = map(lambda s: s.rstrip().split(','), file.readlines())
+                data = map(map_list_to_dict, data)
+
+            return 200, {'registered_images': list(data)}
         except Exception as e:
             return 500, {'error': e}
 
@@ -190,9 +215,8 @@ def get_rejected_images_by_ipfs():
         return {
             'contract_address': item[0],
             'nft_id': item[1],
-            'ipfs_host': item[2],
-            'ipfs_path': item[3],
-            'description': item[4],
+            'ipfs_path': item[2],
+            'description': item[3],
         }
 
     with globals.mutex:

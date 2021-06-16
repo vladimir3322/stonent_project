@@ -3,7 +3,8 @@ info:
   title: Stonent ML
   version: '1.0'
 servers:
-  - url: 'http://localhost:9090'
+  - url: 'http://localhost'
+  - url: 'http://ec2-3-15-13-71.us-east-2.compute.amazonaws.com'
 
 paths:
   '/check':
@@ -65,6 +66,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckRegisteredImageResponse'
+
+  '/registered_images':
+    get:
+      summary: Get images which have been indexed by NN
+      responses:
+        '200':
+          description: Retrieve an array of registered images
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRegisteredImagesResponse'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRegisteredImagesResponse'
 
   '/rejected_images_by_nn':
     get:
@@ -201,6 +219,28 @@ components:
         error:
           type: string
 
+    GetRegisteredImagesResponse:
+      type: object
+      properties:
+        registered_images:
+          description: One picture per array item
+          type: array
+          items:
+            type: object
+            properties:
+              contract_address:
+                type: string
+              nft_id:
+                type: string
+              format:
+                type: string
+            required:
+              - contract_add
+              - nft_id
+              - format
+        error:
+          type: string
+
     GetRejectedImagesByNNResponse:
       type: object
       properties:
@@ -232,11 +272,14 @@ components:
                 type: string
               nft_id:
                 type: string
+              ipfs_path:
+                  type: string
               description:
                 type: string
             required:
               - contract_address
               - nft_id
+              - ipfs_path
               - description
         error:
           type: string
