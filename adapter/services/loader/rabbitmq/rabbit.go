@@ -15,7 +15,7 @@ func InitRabbit() *amqp.Connection {
 	rabbitConn, err = amqp.Dial(rabbitAddr)
 
 	if err != nil {
-		fmt.Println("Rabbit connection failed, restarting")
+		fmt.Println("Wait until Rabbit becomes alive")
 		time.Sleep(time.Second)
 		return InitRabbit()
 	}
@@ -29,4 +29,17 @@ func getRabbitConn() *amqp.Connection {
 		return InitRabbit()
 	}
 	return rabbitConn
+}
+
+func getRabbitChannel() *amqp.Channel {
+	conn := getRabbitConn()
+	channel, err := conn.Channel()
+
+	if err != nil {
+		time.Sleep(time.Second)
+
+		return getRabbitChannel()
+	}
+
+	return channel
 }

@@ -99,7 +99,7 @@ func getImageSource(w http.ResponseWriter, r *http.Request) {
 	_, err := w.Write([]byte(imageSource))
 
 	if err != nil {
-		fmt.Printf("error with server response writing: %s", err)
+		fmt.Println(fmt.Sprintf("error with server response writing: %s", err))
 	}
 }
 

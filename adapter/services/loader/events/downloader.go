@@ -5,112 +5,71 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/vladimir3322/stonent_go/ipfs"
 	"github.com/vladimir3322/stonent_go/ml"
 	"github.com/vladimir3322/stonent_go/rabbitmq"
 	"github.com/vladimir3322/stonent_go/tools/models"
-	"io/ioutil"
-	"net/http"
 	"net/url"
 	"sync"
 )
 
-func getImageSource(ipfsHost string, ipfsPath string) (string, error) {
-	ipfsMetadataUrl := ipfsHost + ipfsPath
-	imageMetadataRes, err := http.Get(ipfsMetadataUrl)
+func getImageSource(ipfsPath string) (string, error) {
+	imageMetadataRes, err := ipfs.Get(ipfsPath)
 
-	if IsExceededImagesLimitCount() {
-		return "", errors.New("downloaded image limit exceeded")
-	}
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsMetadataUrl, err))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsPath, err))
 	}
-	if imageMetadataRes.StatusCode != http.StatusOK {
-		return "", errors.New(fmt.Sprintf("error with %s invalid response code: %d", ipfsMetadataUrl, imageMetadataRes.StatusCode))
-	}
-
-	defer func() {
-		err := imageMetadataRes.Body.Close()
-
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
 
 	var jsonBody iImageMetadata
-	imageMetadataParserErr := json.NewDecoder(imageMetadataRes.Body).Decode(&jsonBody)
+	imageMetadataParserErr := json.Unmarshal(imageMetadataRes, &jsonBody)
 
-	if IsExceededImagesLimitCount() {
-		return "", errors.New("downloaded image limit exceeded")
-	}
 	if imageMetadataParserErr != nil {
-		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsMetadataUrl, imageMetadataParserErr))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsPath, imageMetadataParserErr))
 	}
 
 	parsedImageUrl, err := url.Parse(jsonBody.Image)
 
-	if IsExceededImagesLimitCount() {
-		return "", errors.New("downloaded image limit exceeded")
-	}
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsMetadataUrl, err))
+		return "", errors.New(fmt.Sprintf("error with %s: %s", ipfsPath, err))
 	}
 
-	imageSourceUrl := ipfsHost + "/ipfs" + parsedImageUrl.Path
-	imageSourceRes, err := http.Get(imageSourceUrl)
+	imageSourceRes, err := ipfs.Get(parsedImageUrl.Path[1:])
 
-	if IsExceededImagesLimitCount() {
-		return "", errors.New("downloaded image limit exceeded")
-	}
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("error with %s %s: %s", ipfsMetadataUrl, imageSourceUrl, err))
-	}
-	if imageSourceRes.StatusCode != http.StatusOK {
-		return "", errors.New(fmt.Sprintf("error with %s %s: invalid response code %d", ipfsMetadataUrl, imageSourceUrl, imageSourceRes.StatusCode))
+		return "", errors.New(fmt.Sprintf("error with %s %s: %s", ipfsPath, parsedImageUrl.Path, err))
 	}
 
-	defer func() {
-		err := imageSourceRes.Body.Close()
-
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
-
-	imageSource, err := ioutil.ReadAll(imageSourceRes.Body)
-
-	if IsExceededImagesLimitCount() {
-		return "", errors.New("downloaded image limit exceeded")
-	}
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("error with %s: %s", imageSourceUrl, err))
-	}
-
-	b64ImageSource := base64.StdEncoding.EncodeToString(imageSource)
+	b64ImageSource := base64.StdEncoding.EncodeToString(imageSourceRes)
 
 	return b64ImageSource, nil
 }
 
-func downloadImageWithWaiter(address string, nftId string, ipfsHost string, ipfsPath string, waiter *sync.WaitGroup, cb func(isSucceed bool)) {
+func downloadImageWithWaiter(address string, nftId string, ipfsPath string, waiter *sync.WaitGroup, cb func(isSucceed bool)) {
 	defer waiter.Done()
 
-	isSucceed := downloadImage(address, nftId, ipfsHost, ipfsPath)
+	isSucceed := downloadImage(address, nftId, ipfsPath)
+
+	if isSucceed {
+		CountOfDownloaded += 1
+	}
+
 	cb(isSucceed)
 }
 
-func downloadImage(address string, nftId string, ipfsHost string, ipfsPath string) bool {
-	imageSource, err := getImageSource(ipfsHost, ipfsPath)
+func downloadImage(address string, nftId string, ipfsPath string) bool {
+	imageSource, err := getImageSource(ipfsPath)
 
 	if err != nil {
-		ml.SentRejectedImageByIPFS(address, nftId, ipfsHost, ipfsPath, err)
+		ml.SentRejectedImageByIPFS(address, nftId, ipfsPath, err)
 
 		return false
 	}
 
 	rabbitmq.SendNFTToRabbit(models.NFT{
-		NFTID: nftId,
+		NFTID:           nftId,
 		ContractAddress: address,
-		Data: imageSource,
-		IsFinite: false,
+		Data:            imageSource,
+		IsFinite:        false,
 	})
 
 	return true

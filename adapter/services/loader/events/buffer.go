@@ -6,10 +6,9 @@ import (
 )
 
 type BufferItem struct {
-	ipfsHost string
-	ipfsPath string
 	address  string
 	nftId    string
+	ipfsPath string
 	waiter   *sync.WaitGroup
 }
 
@@ -51,15 +50,8 @@ func RunBuffer() {
 				return
 			}
 
-			go downloadImageWithWaiter(item.address, item.nftId, item.ipfsHost, item.ipfsPath, item.waiter, func(isSucceed bool) {
+			go downloadImageWithWaiter(item.address, item.nftId, item.ipfsPath, item.waiter, func(isSucceed bool) {
 				bufferSize -= 1
-
-				if isSucceed {
-					mutex.Lock()
-					defer mutex.Unlock()
-
-					CountOfDownloaded += 1
-				}
 			})
 		}
 	}

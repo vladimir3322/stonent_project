@@ -9,14 +9,7 @@ import (
 )
 
 func SendNFTToRabbit(nft models.NFT) {
-	conn := getRabbitConn()
-
-	amqpChannel, err := conn.Channel()
-
-	if err != nil {
-		fmt.Printf("can't create an amqpChannel: %s", err)
-		return
-	}
+	amqpChannel := getRabbitChannel()
 
 	defer func() {
 		closeErr := amqpChannel.Close()
@@ -29,7 +22,7 @@ func SendNFTToRabbit(nft models.NFT) {
 	body, err := json.Marshal(nft)
 
 	if err != nil {
-		fmt.Printf("error encoding JSON: %s", err)
+		fmt.Println(fmt.Sprintf("error encoding JSON: %s", err))
 		return
 	}
 
@@ -43,7 +36,7 @@ func SendNFTToRabbit(nft models.NFT) {
 	)
 
 	if err != nil {
-		fmt.Printf("error during declare `QueueIndexing` queue: %s", err)
+		fmt.Println(fmt.Sprintf("error during declare `QueueIndexing` queue: %s", err))
 		return
 	}
 
@@ -54,11 +47,11 @@ func SendNFTToRabbit(nft models.NFT) {
 	})
 
 	if err != nil {
-		fmt.Printf("error publishing message: %s", err)
+		fmt.Println(fmt.Sprintf("error publishing message: %s", err))
 		return
 	}
 
 	if !nft.IsFinite {
-		fmt.Printf("Sent nft to Rabbit: id = %s, addr = %s ", nft.NFTID, nft.ContractAddress)
+		fmt.Println(fmt.Sprintf("Sent nft to Rabbit: id = %s, addr = %s ", nft.NFTID, nft.ContractAddress))
 	}
 }

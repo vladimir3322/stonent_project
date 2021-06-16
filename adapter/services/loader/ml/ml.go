@@ -7,12 +7,11 @@ import (
 	"net/url"
 )
 
-func SentRejectedImageByIPFS(contractAddress string, nftId string, ipfsHost string, ipfsPath string, error error) {
+func SentRejectedImageByIPFS(contractAddress string, nftId string, ipfsPath string, error error) {
 	query := fmt.Sprintf(
-		"?contract_address=%s&nft_id=%s&ipfs_host=%s&ipfs_path=%s&error=%s",
+		"?contract_address=%s&nft_id=%s&ipfs_path=%s&error=%s",
 		contractAddress,
 		nftId,
-		url.QueryEscape(ipfsHost),
 		url.QueryEscape(ipfsPath),
 		url.QueryEscape(fmt.Sprint(error)),
 	)
