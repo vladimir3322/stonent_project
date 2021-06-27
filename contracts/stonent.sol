@@ -171,28 +171,56 @@ contract Stonent is ChainlinkClient, Ownable {
     event RequestSended(address indexed add,string indexed id, address token, bytes32 reqID);
     event RequestCertified(uint256 indexed score, bytes32 reqID);
 
-    uint256 public result;
+    uint256 public ethPrice;
+    uint256 public tknPrice;
+    uint256 public  collectionsCount;
+    mapping (uint256 => address) public collections;
+
 
 
     constructor() public {
         setPublicChainlinkToken();
-        oracle = 0xc00AF972A21f783931A4d558C0996Ae66CE7E505;
-        jobId = "55ab785f7b424544afc45390690649c8";
+        oracle = 0x89bef137EaE888BdD0048016cFC0508A15D2c0f1;
+        jobId = "d398cd617862430fbc738ef685dc0697";
         fee = 1 * 10 ** 18;
         dev = msg.sender;
         price = 100 * 10 ** 18; // price for certification in paymentToken
+        ethPrice = 100000000000000000;
 
     }
 
     /**
      * Initial request
      */
-    function check(string memory _id) public {
+    function checkWithTokens(string memory _id) public {
 
         IERC20(paymentToken).transferFrom(msg.sender, dev, price);
 
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillScore.selector);
-        req.add("id", _id);
+        req.add("contract_address", "0xd07dc4262bcdbf85190c01c996b4c06a461d2430");
+        req.add("nft_id", _id);
+        bytes32 requestID = sendChainlinkRequestTo(oracle, req, fee);
+
+        Certificate storage certificate = certificates[requestID];
+
+        certificate.ID = _id;
+        certificate.Version = version;
+        certificate.Oracle = oracle;
+
+        lastCertification[_id] = requestID;
+
+
+        emit RequestSended(msg.sender, _id, address(0x0), requestID);
+    }
+    
+    // msg.value should be 0.1 ETH
+    function checkWithEth(string memory _id) public payable{
+
+       require(msg.value >= ethPrice, "Payment should be >= 0.1 ETH");
+
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillScore.selector);
+        req.add("contract_address", '0xd07dc4262bcdbf85190c01c996b4c06a461d2430');
+        req.add("nft_id", _id);
         bytes32 requestID = sendChainlinkRequestTo(oracle, req, fee);
 
         Certificate storage certificate = certificates[requestID];
@@ -231,9 +259,13 @@ contract Stonent is ChainlinkClient, Ownable {
         fee = _fee;
     }
 
-    function changePrice(uint256 _price) onlyOwner public {
-        price = _price;
+    function changeTokenPrice(uint256 _tknPrice) onlyOwner public {
+        tknPrice = _tknPrice;
     }
+    
+     function changeEthPrice(uint256 _ethPrice) onlyOwner public {
+        ethPrice = _ethPrice;
+     }
 
     function changeDev(address _newDev) onlyOwner public {
         dev = _newDev;
@@ -245,5 +277,16 @@ contract Stonent is ChainlinkClient, Ownable {
 
     function setPaymentToken(address _token) onlyOwner public {
         paymentToken = _token;
+    }
+    
+    function addCollection(address _collection) onlyOwner public {
+        uint256 currentCollection = collectionsCount;
+        collections[currentCollection] = _collection;
+        collectionsCount++;
+    }
+    
+    function withdraw() external onlyOwner {
+        address payable payer = payable(msg.sender);
+        payer.transfer((address(this).balance));
     }
 }
